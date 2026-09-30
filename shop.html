@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shop | Hook</title>
+<link rel="stylesheet" href="style.css"></head><body><main><section class="hero"><div class="wrap"><h1 data-k="sh_h"></h1><p data-k="sh_p"></p></div></section>
+<section><div class="wrap"><div class="grid" id="shop"></div></div></section></main><script src="app.js"></script>
+<script>
+onL(()=>{$('shop').innerHTML=getProducts().map((p,i)=>'<article class="card '+(i==5?'y':'')+'"><span class="tag">'+L(p.tag)+'</span><h3>'+L(p.name)+'</h3><ul class="tick">'+(p.items[lang]||p.items.en).map(x=>'<li>'+x+'</li>').join('')+'</ul><div class="price">'+p.price+' '+t('egp')+' <small>'+L(p.per)+'</small></div><button class="btn" data-id="'+p.id+'">'+t('add')+'</button></article>').join('')});
+$('shop').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const p=getProducts().find(x=>x.id==b.dataset.id);addToCart(p.name.en,p.price)};
+</script></body></html>

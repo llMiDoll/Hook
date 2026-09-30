@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Account | Hook</title>
+<link rel="stylesheet" href="style.css"></head><body><main><section class="hero" style="padding:70px 0"><div class="wrap"><h1 id="ttl"></h1></div></section>
+<section><div class="wrap"><form id="f"><label id="ln"><span data-t="name"></span><input name="name" autocomplete="name"></label>
+<label><span data-t="email"></span><input name="email" type="email" required autocomplete="email"></label>
+<label><span data-t="pw"></span><input name="pw" type="password" required autocomplete="current-password"></label>
+<p class="err" id="err" role="alert"></p><button class="btn" id="go"></button><button type="button" class="pill" id="sw" style="justify-self:start"></button></form></div></section></main>
+<script src="app.js"></script><script>
+let reg=false;
+onL(()=>{$('ttl').textContent=t(reg?'register':'login');$('go').textContent=t(reg?'register':'login');$('sw').textContent=t(reg?'hasacct':'noacct');$('ln').style.display=reg?'':'none';$('err').textContent=''});
+$('sw').onclick=()=>{reg=!reg;paint()};
+$('f').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target)),em=d.email.trim().toLowerCase(),us=await Auth.users(),h=await H(d.pw);let u;
+if(reg){if(d.pw.length<6)return $('err').textContent=t('short');if(us.some(x=>x.email==em))return $('err').textContent=t('exists');u={name:d.name.trim()||em.split('@')[0],email:em,pw:h,role:'client'};us.push(u);DB.set('users',us)}
+else{u=us.find(x=>x.email==em&&x.pw==h);if(!u)return $('err').textContent=t('bad')}
+Auth.set(u);location.href=u.role=='admin'?'dashboard.html':'index.html'};
+</script></body></html>

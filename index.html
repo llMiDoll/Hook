@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hook | Catch The Attention</title>
+<meta name="description" content="Hook is a full-service marketing agency: social media, content, branding, media buying and performance marketing.">
+<link rel="stylesheet" href="style.css"></head><body><main>
+<section class="hero home"><canvas id="gl" aria-hidden="true"></canvas><div class="wrap hcopy"><h1 data-k="h1"></h1>
+<div class="hrow"><p data-k="hp"></p><div class="hbtn"><a class="btn alt" href="contact.html" data-k="b1"></a> <a class="btn line" href="portfolio.html" data-k="b2"></a></div></div></div>
+<div class="hud h1" aria-hidden="true"><i></i>CPC 4.56 EGP</div><div class="hud h2" aria-hidden="true"><i></i>REACH ▲ 38%</div><div class="hud h3" aria-hidden="true"><i></i>+362 LEADS</div>
+<div class="wrap"><div class="hstats"><div><b>4.56</b><small data-t="cpc"></small></div><div><b>362</b><small data-t="conv"></small></div><div><b>14</b><small data-t="brands"></small></div></div></div></section>
+<div class="mq" aria-hidden="true"><div id="mq"></div></div>
+<section><div class="wrap split">
+<div><p class="script" data-k="ab"></p><h2 data-k="abh"></h2><p style="margin-top:18px" data-k="abp"></p></div>
+<div class="grid" style="margin:0"><div class="card y"><h3 data-k="vis"></h3><p data-k="visp"></p></div><div class="card o"><h3 data-k="mis"></h3><p data-k="misp"></p></div></div></div></section>
+<section class="band"><div class="wrap"><h2 data-k="feat"></h2>
+<div class="sl" id="sl" role="region" aria-roledescription="carousel"><div id="slt"></div><button class="sb" id="sp" aria-label="Previous">‹</button><button class="sb" id="sn" aria-label="Next">›</button><div class="dots" id="dots"></div></div></div></section>
+<section><div class="wrap"><h2 data-k="resh"></h2><div class="grid">
+<div class="card stat"><b>362</b><span data-k="s1"></span></div><div class="card stat"><b>253</b><span data-k="s2"></span></div><div class="card stat"><b>158</b><span data-k="s3"></span></div></div></div></section>
+<section class="band"><div class="wrap"><h2 data-k="clh"></h2>
+<div class="carousel" role="region" aria-roledescription="carousel" aria-label="Client logos"><button class="cbtn" id="prev" aria-label="Previous">‹</button><div class="track" id="track"></div><button class="cbtn" id="next" aria-label="Next">›</button><button class="cbtn" id="play" aria-label="Pause" style="font-size:1rem">❚❚</button></div></div></section>
+<section class="dark"><div class="wrap"><h2 data-k="cta"></h2><p data-k="ctap"></p><a class="btn alt" href="contact.html" data-k="ctab"></a></div></section>
+</main><script src="app.js"></script><script src="three.min.js"></script><script src="hero3d.js"></script>
+<script>
+onL(()=>{const v=['sv1','sv2','sv3','sv4','sv5','sv6'].map(k=>'<span>'+txt(k)+'</span><span>✦</span>').join('');$('mq').innerHTML=v+v+v+v});
+/* image slider */
+let si=0,stm;const sw=()=>getWork();
+function drawSl(){$('slt').innerHTML=sw().map((x,i)=>'<div class="s '+(i==si?'on':'')+'"><img src="'+x.img+'" alt="'+L(x.t)+'"><div class="cap"><span class="tag">'+t(x.cat)+'</span><h3>'+L(x.t)+'</h3></div></div>').join('');$('dots').innerHTML=sw().map((x,i)=>'<button class="'+(i==si?'on':'')+'" data-i="'+i+'" aria-label="Slide '+(i+1)+'"></button>').join('')}
+function goS(n){const c=sw().length;si=(n+c)%c;QA('#slt .s').forEach((e,i)=>e.classList.toggle('on',i==si));QA('#dots button').forEach((e,i)=>e.classList.toggle('on',i==si));clearInterval(stm);if(!reduce)stm=setInterval(()=>goS(si+1),4500)}
+$('sp').onclick=()=>goS(si-1);$('sn').onclick=()=>goS(si+1);$('dots').onclick=e=>{if(e.target.dataset.i)goS(+e.target.dataset.i)};
+let sx=0;$('sl').onpointerdown=e=>sx=e.clientX;$('sl').onpointerup=e=>{const d=e.clientX-sx;if(Math.abs(d)>40)goS(si+(d<0?1:-1))};
+onL(()=>{drawSl();goS(si)});
+/* client logos */
+const logos=[['almalak','Al-Malak'],['holybelly','Holybelly'],['2b-studio','2B Studio'],['bestrate','BestRate'],['jmg','JMG Real Estate'],['silsal','Silsal Corporation'],['charly','Charly'],['bucharest-black','Bucharest Black'],['levai-loris','Levai & Loris'],['gramophone','Gramophone Co-Working Space'],['ma-express','M.A Express'],['gpp','Global Premier Properties'],['act-of-teaching','The Act of Teaching'],['lumiere','Lumière']];
+const tr=$('track');tr.innerHTML=logos.map(l=>'<div class="logo-card" role="img" aria-label="'+l[1]+'"><i style="--m:url(logos/'+l[0]+'.png)"></i></div>').join('');
+const stepPx=()=>tr.firstElementChild.offsetWidth+18;
+function go(d){if(d>0&&tr.scrollLeft+tr.clientWidth>=tr.scrollWidth-6)tr.scrollTo({left:0});else if(d<0&&tr.scrollLeft<=6)tr.scrollTo({left:tr.scrollWidth});else tr.scrollBy({left:d*stepPx()})}
+let timer,on=!reduce,hover=false;
+function tick(){clearInterval(timer);if(on)timer=setInterval(()=>{if(!hover)go(1)},2200)}
+$('prev').onclick=()=>{go(-1);tick()};$('next').onclick=()=>{go(1);tick()};
+$('play').onclick=()=>{on=!on;$('play').textContent=on?'❚❚':'▶';tick()};if(!on)$('play').textContent='▶';
+const car=Q('.carousel');car.onmouseenter=car.onfocusin=()=>hover=true;car.onmouseleave=car.onfocusout=()=>hover=false;tick();
+</script></body></html>

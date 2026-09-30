@@ -1,5 +1,16 @@
 const $=id=>document.getElementById(id),Q=(s,r=document)=>r.querySelector(s),QA=(s,r=document)=>[...r.querySelectorAll(s)];
 const DB={get(k,d){try{const v=localStorage.getItem('hk_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('hk_'+k,JSON.stringify(v));return true}catch(e){alert('Storage is full. Use smaller images.');return false}},del(k){try{localStorage.removeItem('hk_'+k)}catch(e){}}};
+/* ---------- lightweight analytics for this browser demo ---------- */
+const Analytics={
+  visit(){
+    const p=location.pathname.split('/').pop()||'index.html';
+    const views=DB.get('analytics_views',{});
+    views[p]=(views[p]||0)+1;DB.set('analytics_views',views);
+  },
+  work(id){const v=DB.get('analytics_work',{});v[id]=(v[id]||0)+1;DB.set('analytics_work',v)},
+  sale(id){const v=DB.get('analytics_sales',{});v[id]=(v[id]||0)+1;DB.set('analytics_sales',v)}
+};
+Analytics.visit();
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 let lang=DB.get('lang','en');
 /* ---------- UI strings [en, ar] ---------- */
@@ -55,15 +66,26 @@ W(6,'Content','Silsal Corporation','سلسال','Persuasive content for postgrad
 W(7,'Media Buying','JMG Real Estate','جي إم جي العقارية','Meta Ads and Google Display campaigns for qualified buyers. Two projects delivered 253 and 158 conversations.','حملات ميتا وجوجل ديسبلاي لمشترين جادين. مشروعين جابوا 253 و158 محادثة.','img/jmg-media.jpg'),
 W(8,'Media Buying','The Act of Teaching','ذا أكت أوف تيتشينج','Ad campaigns for online courses: 362 conversations at 4.56 EGP per conversation.','حملات إعلانية لكورسات أونلاين: 362 محادثة بتكلفة 4.56 ج.م للمحادثة.','img/education-media.jpg')];
 const getProducts=()=>DB.get('products',PRODUCTS),getWork=()=>DB.get('work',WORK);
-const site=()=>Object.assign({wa:'201277204746',email:'info.h00k.marketing@gmail.com',phone:'+20 127 7204 746'},DB.get('site',{}));
+const site=()=>{
+  const saved=DB.get('site',{}), defaults={wa:'201120767519',email:'mm.Mido1270@gmail.com',phone:'+20 112 076 7519'};
+  if(saved.email==='info.h00k.marketing@gmail.com' || saved.wa==='201277204746'){const migrated=Object.assign({},saved,defaults);DB.set('site',migrated);return migrated}
+  return Object.assign(defaults,saved)
+};
 const txt=k=>{const o=(DB.get('tx',{})[k]||{})[lang];return o||TX[k][lang=='ar'?1:0]};
 /* ---------- auth (browser-only demo: see README) ---------- */
 const H=async s=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('hook|'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return btoa(unescape(encodeURIComponent('hook|'+s)))}};
 const Auth={H,me:()=>DB.get('me',null),set:u=>DB.set('me',{name:u.name,email:u.email,role:u.role}),out(){DB.del('me');location.href='index.html'},
-async users(){let u=DB.get('users');if(!u){u=[{name:'Admin',email:'admin@hook.com',pw:await H('Hook@2026'),role:'admin'}];DB.set('users',u)}return u}};
+async users(){
+ let u=DB.get('users');
+ if(!u){u=[{name:'Mido',email:'mm.Mido1270@gmail.com',pw:await H('Hook@2026'),role:'admin'}];DB.set('users',u)}
+ else {const a=u.find(x=>x.role==='admin'&&x.email==='admin@hook.com');if(a){a.name='Mido';a.email='mm.Mido1270@gmail.com';a.pw=await H('Hook@2026');DB.set('users',u)}}
+ return u
+}};
 /* ---------- shell ---------- */
 const pages=[['index.html','home'],['services.html','services'],['portfolio.html','portfolio'],['shop.html','shop'],['contact.html','contact']];
 const here=location.pathname.split('/').pop()||'index.html';
+const editTab={'index.html':'texts','services.html':'texts','portfolio.html':'work','shop.html':'products','contact.html':'texts'};
+
 document.head.insertAdjacentHTML('beforeend','<link rel="icon" href="hook-ink.png"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400..700&family=Cairo:wght@400;700;900&family=Silkscreen&display=swap">');
 document.body.insertAdjacentHTML('afterbegin',`<div id="pb"></div><header><nav>
 <a class="logo" href="index.html" aria-label="Hook"><img class="lg-l" src="hook-ink.png" alt="Hook"><img class="lg-d" src="hook-cream.png" alt="Hook"></a>
@@ -71,7 +93,7 @@ document.body.insertAdjacentHTML('afterbegin',`<div id="pb"></div><header><nav>
 <div class="ctl"><button class="pill" id="lang"></button><a class="pill" id="acct" href="login.html"></a><button class="pill dk" id="cartbtn"></button>
 <button class="ic" id="theme"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M21 14.6A9 9 0 0 1 9.4 3 9 9 0 1 0 21 14.6z"/></svg></button></div></nav></header>
 <aside id="cart"><button class="x" id="cx">×</button><h2 id="ct"></h2><ul id="items"></ul><p id="tot"></p><button class="btn" id="order"></button></aside>`);
-document.body.insertAdjacentHTML('beforeend','<footer><div class="wrap"><img class="flogo" src="hook-tag-cream.png" alt="Hook - Catch The Attention"><div id="fc"></div></div></footer>');
+document.body.insertAdjacentHTML('beforeend','<footer><div class="wrap"><img class="flogo" src="hook-tag-cream.png" alt="Hook - Catch The Attention"><div id="fc"></div></div></footer>');document.body.insertAdjacentHTML('beforeend','<a class="admin-edit admin-only" id="editPage" href="dashboard.html">✎ Edit this page</a>');
 let cart=DB.get('cart',[]);
 const money=n=>n+' '+t('egp'),sum=()=>cart.reduce((a,i)=>a+i.price*i.q,0);
 function drawCart(){$('cartbtn').innerHTML=`${t('cart')} (${cart.reduce((a,i)=>a+i.q,0)})`;$('ct').textContent=t('yc');$('order').textContent=t('order');
@@ -81,11 +103,12 @@ const saveCart=()=>{DB.set('cart',cart);drawCart()};
 window.addToCart=(name,price)=>{const f=cart.find(i=>i.name===name);f?f.q++:cart.push({name,price,q:1});saveCart();$('cart').classList.add('open')};
 $('cartbtn').onclick=()=>$('cart').classList.toggle('open');$('cx').onclick=()=>$('cart').classList.remove('open');
 $('items').onclick=e=>{const n=e.target.dataset.rm;if(n!==undefined){cart.splice(n,1);saveCart()}};
-$('order').onclick=()=>{const me=Auth.me(),s=site();open(`https://wa.me/${s.wa}?text=`+encodeURIComponent((me?`Hi Hook, I'm ${me.name} (${me.email}). I want to order:\n`:'Hi Hook, I want to order:\n')+cart.map(i=>`- ${i.name} × ${i.q} (${i.price*i.q} EGP)`).join('\n')+'\nTotal: '+sum()+' EGP'),'_blank')};
+$('order').onclick=()=>{const me=Auth.me(),s=site();cart.forEach(i=>{const p=getProducts().find(x=>x.name.en===i.name);if(p)Analytics.sale(p.id)});open(`https://wa.me/${s.wa}?text=`+encodeURIComponent((me?`Hi Hook, I'm ${me.name} (${me.email}). I want to order:\n`:'Hi Hook, I want to order:\n')+cart.map(i=>`- ${i.name} × ${i.q} (${i.price*i.q} EGP)`).join('\n')+'\nTotal: '+sum()+' EGP'),'_blank')};
 /* ---------- language + theme ---------- */
 const R=[];window.onL=f=>{R.push(f);f()};
-function paint(){const me=Auth.me(),s=site();document.documentElement.lang=lang;document.documentElement.dir=lang=='ar'?'rtl':'ltr';
+function paint(){const me=Auth.me(),s=site();document.body.classList.toggle('is-admin',!!(me&&me.role=='admin'));document.documentElement.lang=lang;document.documentElement.dir=lang=='ar'?'rtl':'ltr';
 $('nv').innerHTML=[...pages,...(me&&me.role=='admin'?[['dashboard.html','dash']]:[])].map(([h,k])=>`<li><a href="${h}" ${h==here?'aria-current="page"':''}>${t(k)}</a></li>`).join('');
+if($('editPage'))$('editPage').href='dashboard.html#'+(editTab[here]||'texts');
 $('lang').textContent=t('lang');$('theme').setAttribute('aria-label',t('night'));$('theme').title=t('night');
 const a=$('acct');a.textContent=me?`${me.name} · ${t('logout')}`:t('login');a.onclick=me?e=>{e.preventDefault();Auth.out()}:null;
 $('fc').innerHTML=`<a href="https://wa.me/${s.wa}">${s.phone}</a><br><a href="mailto:${s.email}">${s.email}</a>`;

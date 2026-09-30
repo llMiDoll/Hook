@@ -5,6 +5,7 @@
 <script>
 let f='all';
 function show(){$('tabs').innerHTML=['all','Design','Content','Media Buying'].map(c=>'<button aria-pressed="'+(c==f)+'" data-f="'+c+'">'+t(c=='all'?'all':c)+'</button>').join('');
-$('work').innerHTML=getWork().filter(w=>f=='all'||w.cat==f).map(w=>'<article class="card work"><a href="'+w.img+'" target="_blank" rel="noopener"><img src="'+w.img+'" alt="'+L(w.t)+'" loading="lazy"></a><span class="tag">'+t(w.cat)+'</span><h3>'+L(w.t)+'</h3><p>'+L(w.d)+'</p></article>').join('')}
+$('work').innerHTML=getWork().filter(w=>f=='all'||w.cat==f).map(w=>'<article class="card work" data-work="'+w.id+'"><a href="'+w.img+'" target="_blank" rel="noopener"><img src="'+w.img+'" alt="'+L(w.t)+'" loading="lazy"></a><span class="tag">'+t(w.cat)+'</span><h3>'+L(w.t)+'</h3><p>'+L(w.d)+'</p></article>').join('');
+QA('[data-work]').forEach(card=>{const id=card.dataset.work;if(!card.dataset.tracked){card.dataset.tracked=1;Analytics.work(id)}})}
 $('tabs').onclick=e=>{const b=e.target.closest('button');if(b){f=b.dataset.f;show()}};onL(show);
 </script></body></html>

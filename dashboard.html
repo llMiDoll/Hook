@@ -1,31 +1,71 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard | Hook</title>
-<link rel="stylesheet" href="style.css"></head><body><main><section class="hero" style="padding:60px 0"><div class="wrap"><h1>Dashboard</h1></div></section>
-<section style="padding-top:30px"><div class="wrap"><div class="tabs" id="tb"></div><div id="panel"></div></div></section></main>
-<script src="app.js"></script><script>
+<link rel="stylesheet" href="style.css"></head><body><main>
+<section class="hero" style="padding:60px 0"><div class="wrap"><p class="script">ADMIN</p><h1>Dashboard</h1><p>Manage the site, clients, projects, prices and quotes from one place.</p></div></section>
+<section style="padding-top:30px"><div class="wrap"><div class="tabs" id="tb"></div><div id="panel"></div></div></section>
+</main><script src="app.js"></script><script>
 const me0=Auth.me();if(!me0||me0.role!='admin')location.replace('login.html');
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const get=(o,p)=>p.split('.').reduce((a,k)=>a?.[k],o),setp=(o,p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((a,x)=>a[x]??={},o)[l]=v};
-const SCH={products:[['name.en','Name (EN)'],['name.ar','الاسم (AR)'],['tag.en','Tag (EN)'],['tag.ar','التصنيف (AR)'],['price','Price (EGP)','n'],['per.en','Billing (EN)'],['per.ar','الدفع (AR)'],['items.en','Included items EN (one per line)','l'],['items.ar','المميزات AR (سطر لكل ميزة)','l']],
-work:[['cat','Category','s'],['t.en','Title (EN)'],['t.ar','العنوان (AR)'],['d.en','Description (EN)','t'],['d.ar','الوصف (AR)','t'],['img','Image','i']]};
-const TABS=[['texts','Texts & contact'],['products','Shop prices'],['work','Portfolio'],['users','Users'],['account','My account']];
-let tab='texts',cur=[];
-const shrink=(f,cb)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1100/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.82))};im.src=r.result};r.readAsDataURL(f)};
-const done=(b,m='Saved ✓')=>{const o=b.textContent;b.textContent=m;setTimeout(()=>b.textContent=o,1500)};
-function collect(){return QA('.ed').map((b,i)=>{const o=JSON.parse(JSON.stringify(cur[i]));QA('[data-p]',b).forEach(n=>{const ty=n.dataset.ty;setp(o,n.dataset.p,ty=='l'?n.value.split('\n').map(s=>s.trim()).filter(Boolean):ty=='n'?+n.value||0:n.value)});return o})}
-function draw(){$('tb').innerHTML=TABS.map(([k,l])=>'<button aria-pressed="'+(k==tab)+'" data-t="'+k+'">'+l+'</button>').join('');const p=$('panel');
-if(tab=='texts'){const s=site(),o=DB.get('tx',{});p.innerHTML='<div class="card ed"><h3>Contact details</h3>'+[['wa','WhatsApp number (digits, with country code)'],['phone','Phone shown on site'],['email','Email']].map(([k,l])=>'<label>'+l+'<input data-s="'+k+'" value="'+esc(s[k])+'"></label>').join('')+'</div><h3 style="margin-top:30px">Page texts</h3>'+Object.keys(TX).map(k=>'<div class="rowk"><b>'+k+'</b><textarea rows="2" data-x="'+k+'" data-l="en">'+esc((o[k]||{}).en||TX[k][0])+'</textarea><textarea rows="2" dir="rtl" data-x="'+k+'" data-l="ar">'+esc((o[k]||{}).ar||TX[k][1])+'</textarea></div>').join('')+'<p style="margin-top:20px"><button class="btn" id="sv">Save changes</button> <button class="pill" id="rs">Reset texts to default</button></p>'}
-else if(tab=='products'||tab=='work'){cur=tab=='products'?getProducts():getWork();p.innerHTML=cur.map((o,i)=>'<div class="card ed"><button class="x" data-del="'+i+'" aria-label="Delete">×</button>'+SCH[tab].map(([k,l,ty])=>ty=='i'?'<label>'+l+'<img src="'+o.img+'" alt=""><input type="file" accept="image/*" data-img="'+i+'"></label>':ty=='s'?'<label>'+l+'<select data-p="cat">'+['Design','Content','Media Buying'].map(c=>'<option '+(o.cat==c?'selected':'')+'>'+c+'</option>').join('')+'</select></label>':ty=='t'||ty=='l'?'<label>'+l+'<textarea rows="3" data-p="'+k+'" data-ty="'+ty+'">'+esc(ty=='l'?(get(o,k)||[]).join('\n'):get(o,k))+'</textarea></label>':'<label>'+l+'<input data-p="'+k+'" data-ty="'+(ty||'')+'" value="'+esc(get(o,k))+'"></label>').join('')+'</div>').join('')+'<p style="margin-top:20px"><button class="btn" id="add">+ Add new</button> <button class="btn alt" id="sv">Save changes</button> <button class="pill" id="rs">Reset to defaults</button></p>'}
-else if(tab=='users'){Auth.users().then(us=>{p.innerHTML='<p>Accounts registered in this browser:</p>'+us.map((u,i)=>'<div class="card ed"><b>'+esc(u.name)+'</b> · '+esc(u.email)+' · '+u.role+(u.role=='admin'?'':' <button class="x" data-u="'+i+'">×</button>')+'</div>').join('')})}
-else p.innerHTML='<form id="ac" class="card ed"><h3>Change admin login</h3><label>Email<input name="e" type="email" value="'+esc(me0.email)+'" required></label><label>New password (min 6)<input name="p" type="password" minlength="6" required></label><button class="btn">Update login</button></form>'}
-$('tb').onclick=e=>{const b=e.target.closest('[data-t]');if(b){tab=b.dataset.t;draw()}};
-$('panel').onclick=async e=>{const b=e.target,k=tab;
-if(b.id=='sv'){if(k=='texts'){const s={},o={};QA('[data-s]').forEach(n=>s[n.dataset.s]=n.value.trim());QA('[data-x]').forEach(n=>(o[n.dataset.x]??={})[n.dataset.l]=n.value);DB.set('site',s);DB.set('tx',o)}else DB.set(k,collect());done(b);paint()}
-if(b.id=='rs'&&confirm('Reset to defaults?')){DB.del(k=='texts'?'tx':k);draw();paint()}
-if(b.id=='add'){cur=collect();cur.push(k=='products'?{id:Date.now(),name:{en:'New package',ar:'باقة جديدة'},tag:{en:'',ar:''},price:0,per:{en:'month',ar:'شهرياً'},items:{en:[],ar:[]}}:{id:Date.now(),cat:'Design',t:{en:'New work',ar:'عمل جديد'},d:{en:'',ar:''},img:'hook-tag-ink.png'});DB.set(k,cur);draw()}
-if(b.dataset.del!==undefined&&confirm('Delete this item?')){cur=collect();cur.splice(+b.dataset.del,1);DB.set(k,cur);draw()}
-if(b.dataset.u!==undefined){const us=await Auth.users();us.splice(+b.dataset.u,1);DB.set('users',us);draw()}};
-$('panel').onchange=e=>{const n=e.target;if(n.dataset.img!==undefined&&n.files[0])shrink(n.files[0],d=>{cur=collect();cur[+n.dataset.img].img=d;DB.set(tab,cur);draw()})};
-$('panel').onsubmit=async e=>{if(e.target.id!='ac')return;e.preventDefault();const d=new FormData(e.target),us=await Auth.users(),a=us.find(x=>x.role=='admin');a.email=d.get('e').trim().toLowerCase();a.pw=await H(d.get('p'));DB.set('users',us);Auth.set(a);done(e.target.querySelector('button'),'Updated ✓')};
-draw();
+const tabs=[['overview','Overview'],['texts','Site & contact'],['products','Shop / prices'],['work','Portfolio / projects'],['clients','Clients'],['quotes','Quotes'],['users','Accounts'],['account','Admin account']];
+let tab=location.hash.slice(1)||'overview',cur=[];
+const defaults={clients:[],quotes:[]};
+const read=k=>DB.get(k,defaults[k]||[]);
+const save=(k,v)=>DB.set(k,v);
+const shrink=(f,cb)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const z=Math.min(1,1100/im.width),c=document.createElement('canvas');c.width=im.width*z;c.height=im.height*z;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.82))};im.src=r.result};r.readAsDataURL(f)};
+const done=(b,m='Saved ✓')=>{const old=b.textContent;b.textContent=m;setTimeout(()=>b.textContent=old,1400)};
+function collectCards(){return QA('.ed').map((b,i)=>{const o=JSON.parse(JSON.stringify(cur[i]));QA('[data-p]',b).forEach(n=>{const ty=n.dataset.ty;setp(o,n.dataset.p,ty=='l'?n.value.split('\n').map(s=>s.trim()).filter(Boolean):ty=='n'?+n.value||0:n.value)});return o})}
+function metric(){const views=DB.get('analytics_views',{}),workV=DB.get('analytics_work',{}),sales=DB.get('analytics_sales',{});return {views,total:Object.values(views).reduce((a,b)=>a+b,0),workV,sales,accounts:DB.get('users',[]).length}}
+function overview(){
+ const m=metric(), work=getWork(), products=getProducts(), topW=work.slice().sort((a,b)=>(m.workV[b.id]||0)-(m.workV[a.id]||0))[0], topP=products.slice().sort((a,b)=>(m.sales[b.id]||0)-(m.sales[a.id]||0))[0];
+ const pages=Object.entries(m.views).sort((a,b)=>b[1]-a[1]); const max=Math.max(1,...pages.map(x=>x[1]));
+ return '<div class="dashboard-grid">'+
+ [['Total visits',m.total],['Accounts',m.accounts],['Clients',read('clients').length],['Quotes',read('quotes').length],['Most viewed project',topW?esc(L(topW.t)):'—'],['Best selling package',topP?esc(L(topP.name)):'—']].map(x=>'<div class="dashboard-stat"><small>'+x[0]+'</small><b>'+x[1]+'</b></div>').join('')+
+ '<div class="split" style="margin-top:30px"><div class="card"><h3>Page views</h3>'+pages.map(([p,n])=>'<div class="chart-row"><span>'+esc(p)+'</span><strong>'+n+'</strong><div class="chart-bar" style="grid-column:1/3"><i style="--w:'+Math.round(n/max*100)+'%"></i></div></div>').join('')+'</div>'+
+ '<div class="card"><h3>Projects viewed</h3>'+work.slice().sort((a,b)=>(m.workV[b.id]||0)-(m.workV[a.id]||0)).map(w=>'<div class="chart-row"><span>'+esc(L(w.t))+'</span><strong>'+(m.workV[w.id]||0)+'</strong></div>').join('')+'</div></div>';
+}
+function render(){
+ $('tb').innerHTML=tabs.map(x=>'<button aria-pressed="'+(x[0]==tab)+'" data-tab="'+x[0]+'">'+x[1]+'</button>').join('');
+ const p=$('panel');
+ if(tab=='overview'){p.innerHTML=overview();return}
+ if(tab=='texts'){
+  const s=site(),o=DB.get('tx',{});
+  p.innerHTML='<div class="card"><h3>Contact details</h3><div class="grid">'+[['wa','WhatsApp digits'],['phone','Phone display'],['email','Public email']].map(([k,l])=>'<label>'+l+'<input data-s="'+k+'" value="'+esc(s[k])+'"></label>').join('')+'</div></div>'+
+  '<h3 style="margin:30px 0 15px">Editable page text</h3>'+Object.keys(TX).map(k=>'<div class="rowk"><b>'+k+'</b><textarea rows="2" data-x="'+k+'" data-l="en">'+esc((o[k]||{}).en||TX[k][0])+'</textarea><textarea rows="2" dir="rtl" data-x="'+k+'" data-l="ar">'+esc((o[k]||{}).ar||TX[k][1])+'</textarea></div>').join('')+
+  '<p style="margin-top:20px"><button class="btn" id="saveText">Save changes</button></p>';return
+ }
+ if(tab=='products'||tab=='work'){
+  cur=tab=='products'?getProducts():getWork();
+  const sch=tab=='products'?[['name.en','Name EN'],['name.ar','Name AR'],['tag.en','Tag EN'],['tag.ar','Tag AR'],['price','Price EGP','n'],['per.en','Billing EN'],['per.ar','Billing AR'],['items.en','Items EN (one/line)','l'],['items.ar','Items AR (one/line)','l']]:[['cat','Category','s'],['t.en','Title EN'],['t.ar','Title AR'],['d.en','Description EN','t'],['d.ar','Description AR','t'],['img','Image','i']];
+  p.innerHTML=cur.map((o,i)=>'<div class="card ed"><button class="x" data-del="'+i+'">×</button>'+sch.map(([k,l,ty])=>ty=='i'?'<label>'+l+'<img src="'+o.img+'" alt=""><input type="file" accept="image/*" data-img="'+i+'"></label>':ty=='s'?'<label>'+l+'<select data-p="cat">'+['Design','Content','Media Buying'].map(c=>'<option '+(o.cat==c?'selected':'')+'>'+c+'</option>').join('')+'</select></label>':ty=='t'||ty=='l'?'<label>'+l+'<textarea rows="3" data-p="'+k+'" data-ty="'+ty+'">'+esc(ty=='l'?(get(o,k)||[]).join('\n'):get(o,k))+'</textarea></label>':'<label>'+l+'<input data-p="'+k+'" data-ty="'+(ty||'')+'" value="'+esc(get(o,k))+'"></label>').join('')+'</div>').join('')+
+  '<p style="margin-top:20px"><button class="btn" id="add">+ Add new</button> <button class="btn alt" id="saveCards">Save changes</button></p>';return
+ }
+ if(tab=='clients'){
+  cur=read('clients');p.innerHTML=cur.map((c,i)=>'<div class="card ed"><button class="x" data-del="'+i+'">×</button><label>Name<input data-p="name" value="'+esc(c.name)+'"></label><label>Email<input data-p="email" type="email" value="'+esc(c.email)+'"></label><label>Phone / WhatsApp<input data-p="phone" value="'+esc(c.phone)+'"></label><label>Company<input data-p="company" value="'+esc(c.company)+'"></label><label>Notes<textarea data-p="notes">'+esc(c.notes)+'</textarea></label></div>').join('')+'<p><button class="btn" id="add">+ Add client</button> <button class="btn alt" id="saveCards">Save clients</button></p>';return
+ }
+ if(tab=='quotes'){
+  cur=read('quotes');p.innerHTML=cur.map((q,i)=>'<div class="card ed"><button class="x" data-del="'+i+'">×</button><label>Client<input data-p="client" value="'+esc(q.client)+'"></label><label>Project / service<input data-p="project" value="'+esc(q.project)+'"></label><label>Amount EGP<input data-p="amount" data-ty="n" type="number" value="'+esc(q.amount)+'"></label><label>Status<select data-p="status"><option '+(q.status=='Draft'?'selected':'')+'>Draft</option><option '+(q.status=='Sent'?'selected':'')+'>Sent</option><option '+(q.status=='Accepted'?'selected':'')+'>Accepted</option><option '+(q.status=='Rejected'?'selected':'')+'>Rejected</option></select></label><label>Notes<textarea data-p="notes">'+esc(q.notes)+'</textarea></label></div>').join('')+'<p><button class="btn" id="add">+ Add quote</button> <button class="btn alt" id="saveCards">Save quotes</button></p>';return
+ }
+ if(tab=='users'){Auth.users().then(us=>{p.innerHTML='<div class="card"><h3>Registered accounts</h3>'+us.map((u,i)=>'<div class="row" style="display:flex;justify-content:space-between;gap:10px;align-items:center"><span><b>'+esc(u.name)+'</b> · '+esc(u.email)+' · '+u.role+'</span>'+(u.role!='admin'?'<button class="x" data-user="'+i+'">×</button>':'')+'</div>').join('')+'</div>'});return}
+ p.innerHTML='<form id="ac" class="card"><h3>Admin login</h3><label>Admin username<input name="n" value="'+esc(me0.name)+'" required></label><label>Admin email<input name="e" type="email" value="'+esc(me0.email)+'" required></label><label>New password (min 6)<input name="p" type="password" minlength="6" placeholder="Leave unchanged only if you do not submit"></label><button class="btn">Update admin</button></form>';
+}
+$('tb').onclick=e=>{const b=e.target.closest('[data-tab]');if(b){tab=b.dataset.tab;location.hash=tab;render()}};
+$('panel').onclick=async e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.id=='saveText'){const s={},o={};QA('[data-s]').forEach(n=>s[n.dataset.s]=n.value.trim());QA('[data-x]').forEach(n=>(o[n.dataset.x]??={})[n.dataset.l]=n.value);DB.set('site',s);DB.set('tx',o);done(b);paint();return}
+ if(b.id=='saveCards'){save(tab,collectCards());done(b);paint();return}
+ if(b.id=='add'){
+  cur=collectCards();
+  const item=tab=='products'?{id:Date.now(),name:{en:'New package',ar:'باقة جديدة'},tag:{en:'',ar:''},price:0,per:{en:'month',ar:'شهرياً'},items:{en:[],ar:[]}}:
+   tab=='work'?{id:Date.now(),cat:'Design',t:{en:'New project',ar:'مشروع جديد'},d:{en:'',ar:''},img:'hook-tag-ink.png'}:
+   tab=='clients'?{id:Date.now(),name:'',email:'',phone:'',company:'',notes:''}:
+   {id:Date.now(),client:'',project:'',amount:0,status:'Draft',notes:''};
+  cur.push(item);save(tab,cur);render();return
+ }
+ if(b.dataset.del!==undefined){cur=collectCards();cur.splice(+b.dataset.del,1);save(tab,cur);render();return}
+ if(b.dataset.user!==undefined){const us=await Auth.users();us.splice(+b.dataset.user,1);DB.set('users',us);render();return}
+};
+$('panel').onchange=e=>{const n=e.target;if(n.dataset.img!==undefined&&n.files[0])shrink(n.files[0],d=>{cur=collectCards();cur[+n.dataset.img].img=d;save(tab,cur);render()})};
+$('panel').onsubmit=async e=>{if(e.target.id!='ac')return;e.preventDefault();const d=new FormData(e.target),us=await Auth.users(),a=us.find(x=>x.role=='admin');a.name=d.get('n').trim();a.email=d.get('e').trim().toLowerCase();if(d.get('p'))a.pw=await H(d.get('p'));DB.set('users',us);Auth.set(a);done(e.target.querySelector('button'),'Updated ✓')};
+render();
 </script></body></html>

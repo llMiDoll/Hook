@@ -74,13 +74,27 @@ const site=()=>{
 const txt=k=>{const o=(DB.get('tx',{})[k]||{})[lang];return o||TX[k][lang=='ar'?1:0]};
 /* ---------- auth (browser-only demo: see README) ---------- */
 const H=async s=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('hook|'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return btoa(unescape(encodeURIComponent('hook|'+s)))}};
-const Auth={H,me:()=>DB.get('me',null),set:u=>DB.set('me',{name:u.name,email:u.email,role:u.role}),out(){DB.del('me');location.href='index.html'},
-async users(){
- let u=DB.get('users');
- if(!u){u=[{name:'Mido',email:'mm.Mido1270@gmail.com',pw:await H('Hook@2026'),role:'admin'}];DB.set('users',u)}
- else {const a=u.find(x=>x.role==='admin'&&x.email==='admin@hook.com');if(a){a.name='Mido';a.email='mm.Mido1270@gmail.com';a.pw=await H('Hook@2026');DB.set('users',u)}}
- return u
-}};
+const ADMIN_DEFAULT={name:'Mido',email:'mm.Mido1270@gmail.com',password:'Hook@2026'};
+const Auth={
+  H,
+  me:()=>DB.get('me',null),
+  set:u=>DB.set('me',{name:u.name,email:u.email,role:u.role}),
+  out(){DB.del('me');location.href='index.html'},
+  async users(){
+    let u=DB.get('users');
+    if(!Array.isArray(u))u=[];
+    // One-time migration for older builds, plus a safe bootstrap when no admin exists.
+    let a=u.find(x=>x && x.role==='admin');
+    const legacy=u.find(x=>x && ['admin@hook.com','info.h00k.marketing@gmail.com'].includes(String(x.email||'').toLowerCase()));
+    if(!a){
+      const pw=await H(ADMIN_DEFAULT.password);
+      a={name:ADMIN_DEFAULT.name,email:ADMIN_DEFAULT.email,pw,role:'admin'};u.unshift(a);DB.set('users',u);
+    }else if(legacy && a===legacy){
+      a.name=ADMIN_DEFAULT.name;a.email=ADMIN_DEFAULT.email;a.pw=await H(ADMIN_DEFAULT.password);DB.set('users',u);
+    }
+    return u;
+  }
+};
 /* ---------- shell ---------- */
 const pages=[['index.html','home'],['services.html','services'],['portfolio.html','portfolio'],['shop.html','shop'],['contact.html','contact']];
 const here=location.pathname.split('/').pop()||'index.html';

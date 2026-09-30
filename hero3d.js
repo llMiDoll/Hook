@@ -7,8 +7,8 @@ const sc=new T.Scene(),cam=new T.PerspectiveCamera(42,1,.1,100);cam.position.z=1
 const G=new T.Group(),H=new T.Group();sc.add(G);G.add(H);
 function mat(a,b,c){const k=document.createElement('canvas');k.width=k.height=128;const x=k.getContext('2d');let g=x.createRadialGradient(48,40,2,64,64,70);g.addColorStop(0,a);g.addColorStop(.55,b);g.addColorStop(1,c);x.fillStyle=g;x.fillRect(0,0,128,128);return new T.CanvasTexture(k)}
 const hookM=new T.MeshMatcapMaterial({matcap:mat('#ffd9cf','#ff512e','#5e1000')});
-const fishM=new T.MeshMatcapMaterial({matcap:mat('#ffffff','#cbd4d4','#526060')});
-const deepM=new T.MeshMatcapMaterial({matcap:mat('#8cc6c2','#367b79','#123d3c')});
+const fishM=new T.MeshMatcapMaterial({matcap:mat('#fffdef','#ff8b72','#5a1710')});
+const deepM=new T.MeshMatcapMaterial({matcap:mat('#ffb29f','#b83b24','#2d0905')});
 const lineM=new T.LineBasicMaterial();
 const hookGroup=new T.Group();H.add(hookGroup);
 /* smaller hook */
@@ -28,7 +28,7 @@ for(let i=0;i<N;i++){
   const tail=new T.Mesh(new T.ConeGeometry(.38,.7,4),i>9?deepM:fishM);
   tail.rotation.z=-Math.PI/2; tail.position.x=-.92;
   g.add(body,tail); sc.add(g); groups.push(g);
-  F.push({g,ph:Math.random()*6.28,sp:.14+Math.random()*.1,rx:4+Math.random()*6,ry:2+Math.random()*4,rz:(Math.random()-.5)*7,s:.16+Math.random()*.13,p:new T.Vector3(),a:0});
+  F.push({g,ph:Math.random()*6.28,sp:.14+Math.random()*.1,rx:4+Math.random()*6,ry:2+Math.random()*4,rz:(Math.random()-.5)*7,s:.16+Math.random()*.13,p:new T.Vector3(),a:0,oy:(Math.random()-.5)*2.4});
 }
 /* a few tiny deep silhouettes, still part of the same 15 fish */
 function depthType(f,depth){
@@ -42,8 +42,9 @@ function depthType(f,depth){
 let depth=0,mouseX=0,mouseY=0,scrollTarget=0;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 function seaColor(dk,d){
-  const base=dk?[18,26,34]:[12,70,68], end=dk?[5,10,20]:[3,28,31], q=d*d;
-  return new T.Color((base[0]*(1-q)+end[0]*q)/255,(base[1]*(1-q)+end[1]*q)/255,(base[2]*(1-q)+end[2]*q)/255);
+  // The sea follows the site's exact brand palette while becoming darker as you dive.
+  const top=dk?[29,29,27]:[255,81,46], bottom=dk?[5,5,4]:[92,24,14], q=Math.pow(d,1.35);
+  return new T.Color((top[0]*(1-q)+bottom[0]*q)/255,(top[1]*(1-q)+bottom[1]*q)/255,(top[2]*(1-q)+bottom[2]*q)/255);
 }
 function theme(){lineM.color.set(document.documentElement.dataset.theme=='dark'?'#fffdef':'#1d1d1b')}
 window.onTheme=theme;theme();
@@ -72,7 +73,8 @@ function draw(){
     const ox=f.p.x,oy=f.p.y;f.p.x+=(x-f.p.x)*.055;f.p.y+=(y-f.p.y)*.055;f.p.z+=(z-f.p.z)*.055;
     const vx=f.p.x-ox,vy=f.p.y-oy;if(Math.abs(vx)+Math.abs(vy)>.0001){let ta=Math.atan2(vy,vx),df=ta-f.a;df=Math.atan2(Math.sin(df),Math.cos(df));f.a+=df*.12}
     f.g.position.copy(f.p);f.g.rotation.z=f.a;
-    const sca=f.s*(1-depth*.35)*(1+(i%3)*.08);f.g.scale.setScalar(sca);depthType(f,depth);
+    const sca=f.s*(1-depth*.52)*(1+(i%3)*.08);
+    f.g.position.z += Math.sin(t*1.3+i)*.012;f.g.scale.setScalar(sca);depthType(f,depth);
   }
   r.render(sc,cam);
   if(!RM)requestAnimationFrame(draw)

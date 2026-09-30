@@ -73,25 +73,33 @@ const site=()=>{
 };
 const txt=k=>{const o=(DB.get('tx',{})[k]||{})[lang];return o||TX[k][lang=='ar'?1:0]};
 /* ---------- auth (browser-only demo: see README) ---------- */
-const H=async s=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('hook|'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return btoa(unescape(encodeURIComponent('hook|'+s)))}};
-const ADMIN_DEFAULT={name:'Mido',email:'mm.Mido1270@gmail.com',password:'Hook@2026'};
+const ADMIN_DEFAULT={name:'Mido',email:'mm.Mido1270@gmail.com',password:'Hook@2026',hash:'2b597b47949e475bfd691ea9834c72c95d1b78162c209179a246104ecdc93d91'};
+const H=async s=>{
+  const value='hook|'+String(s);
+  try{
+    if(window.crypto?.subtle){
+      const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));
+      return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+    }
+  }catch(e){}
+  let h=0x811c9dc5;for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,0x01000193)}
+  return (h>>>0).toString(16).padStart(8,'0');
+};
+const AUTH_VERSION=3;
 const Auth={
   H,
   me:()=>DB.get('me',null),
   set:u=>DB.set('me',{name:u.name,email:u.email,role:u.role}),
-  out(){DB.del('me');location.href='index.html'},
+  out(){DB.del('me');location.replace('index.html')},
   async users(){
-    let u=DB.get('users');
-    if(!Array.isArray(u))u=[];
-    // One-time migration for older builds, plus a safe bootstrap when no admin exists.
-    let a=u.find(x=>x && x.role==='admin');
-    const legacy=u.find(x=>x && ['admin@hook.com','info.h00k.marketing@gmail.com'].includes(String(x.email||'').toLowerCase()));
-    if(!a){
-      const pw=await H(ADMIN_DEFAULT.password);
-      a={name:ADMIN_DEFAULT.name,email:ADMIN_DEFAULT.email,pw,role:'admin'};u.unshift(a);DB.set('users',u);
-    }else if(legacy && a===legacy){
-      a.name=ADMIN_DEFAULT.name;a.email=ADMIN_DEFAULT.email;a.pw=await H(ADMIN_DEFAULT.password);DB.set('users',u);
+    let u=DB.get('users',[]); if(!Array.isArray(u))u=[];
+    // Reset only once to migrate broken/stale builds. Later admin changes are preserved.
+    if(DB.get('auth_version',0)!==AUTH_VERSION){
+      u=u.filter(x=>String(x?.email||'').toLowerCase()!==ADMIN_DEFAULT.email.toLowerCase() && x?.role!=='admin');
+      u.unshift({name:ADMIN_DEFAULT.name,email:ADMIN_DEFAULT.email,pw:ADMIN_DEFAULT.hash,role:'admin'});
+      DB.set('users',u);DB.set('auth_version',AUTH_VERSION);
     }
+    if(!u.some(x=>x?.role==='admin')){u.unshift({name:ADMIN_DEFAULT.name,email:ADMIN_DEFAULT.email,pw:ADMIN_DEFAULT.hash,role:'admin'});DB.set('users',u)}
     return u;
   }
 };

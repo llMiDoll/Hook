@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Account | Hook</title>
-<link rel="stylesheet" href="style.css"></head><body><main><section class="hero" style="padding:70px 0"><div class="wrap"><h1 id="ttl"></h1></div></section>
-<section><div class="wrap"><form id="f"><label id="ln"><span data-t="name"></span><input name="name" autocomplete="name"></label>
-<label><span data-t="email"></span><input name="email" type="email" required autocomplete="email"></label>
-<label><span data-t="pw"></span><input name="pw" type="password" required autocomplete="current-password"></label>
-<p class="err" id="err" role="alert"></p><button class="btn" id="go"></button><button type="button" class="pill" id="sw" style="justify-self:start"></button></form></div></section></main>
-<script src="app.js"></script><script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#FF512E"><title>Login — Hook</title><link rel="stylesheet" href="style.css"></head>
+<body class="auth-page"><main><section class="auth-shell"><div class="auth-grid"><div class="auth-brand"><div class="auth-kicker">HOOK / ACCESS_01</div><h1>Enter the<br><em>control room.</em></h1><p>Manage projects, packages, clients, quotes and site content from one digital workspace.</p><div class="auth-orbit"><span></span><i></i><b>ADMIN</b></div></div><div class="auth-card"><div class="auth-top"><img src="hook-ink.png" alt="Hook"><span id="modeLabel">ADMIN ACCESS</span></div><h2 id="ttl">Log in</h2><p class="auth-muted">Use your Hook admin credentials to continue.</p><form id="f" novalidate><label id="ln"><span data-t="name">Name</span><input name="name" autocomplete="name"></label><label><span data-t="email">Email</span><input name="email" type="email" required autocomplete="username" placeholder="mm.Mido1270@gmail.com"></label><label><span data-t="pw">Password</span><input name="pw" type="password" required autocomplete="current-password" placeholder="••••••••"></label><p class="err" id="err" role="alert"></p><button class="btn auth-submit" id="go" type="submit">Log in <span>↗</span></button></form><button type="button" class="auth-switch" id="sw">Create a client account</button><div class="auth-foot">HOOK DIGITAL SYSTEM <span>•</span> GITHUB PAGES</div></div></div></section></main><script src="app.js"></script><script>
 let reg=false;
-onL(async()=>{await Auth.users();$('ttl').textContent=t(reg?'register':'login');$('go').textContent=t(reg?'register':'login');$('sw').textContent=t(reg?'hasacct':'noacct');$('ln').style.display=reg?'':'none';$('err').textContent=''});
-$('sw').onclick=()=>{reg=!reg;paint()};
-$('f').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target)),em=d.email.trim().toLowerCase(),us=await Auth.users(),h=await H(d.pw);let u;
-if(reg){if(d.pw.length<6)return $('err').textContent=t('short');if(us.some(x=>x.email==em))return $('err').textContent=t('exists');u={name:d.name.trim()||em.split('@')[0],email:em,pw:h,role:'client'};us.push(u);DB.set('users',us)}
-else{u=us.find(x=>x.email==em&&x.pw==h);if(!u)return $('err').textContent=t('bad')}
-Auth.set(u);location.replace(u.role=='admin'?'dashboard.html':'index.html')};
+async function boot(){await Auth.users();update();}
+function update(){
+  $('ttl').textContent=t(reg?'register':'login');$('go').innerHTML=(reg?t('register'):t('login'))+' <span>↗</span>';$('sw').textContent=t(reg?'hasacct':'noacct');$('ln').style.display=reg?'':'none';$('err').textContent='';
+  $('modeLabel').textContent=reg?'CLIENT REGISTRATION':'ADMIN ACCESS';
+}
+$('sw').onclick=()=>{reg=!reg;update()};
+$('f').onsubmit=async e=>{e.preventDefault();$('err').textContent='';const d=Object.fromEntries(new FormData(e.target)),em=d.email.trim().toLowerCase();if(!em||!d.pw)return $('err').textContent=t('bad');const us=await Auth.users(),h=await H(d.pw);let u;
+if(reg){if(d.pw.length<6)return $('err').textContent=t('short');if(us.some(x=>String(x.email).toLowerCase()===em))return $('err').textContent=t('exists');u={name:d.name.trim()||em.split('@')[0],email:em,pw:h,role:'client'};us.push(u);DB.set('users',us)}else{u=us.find(x=>String(x.email).toLowerCase()===em&&x.pw===h);if(!u&&em===ADMIN_DEFAULT.email.toLowerCase()&&d.pw===ADMIN_DEFAULT.password){u={name:ADMIN_DEFAULT.name,email:ADMIN_DEFAULT.email,pw:ADMIN_DEFAULT.hash,role:'admin'};DB.set('users',[u,...us.filter(x=>x.role!=='admin'&&String(x.email).toLowerCase()!==em)]);DB.set('auth_version',AUTH_VERSION)}if(!u)return $('err').textContent=t('bad')}
+Auth.set(u);location.replace(u.role==='admin'?'dashboard.html':'index.html')};
+boot();
 </script></body></html>

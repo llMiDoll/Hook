@@ -1,11 +1,24 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portfolio | Hook</title>
-<link rel="stylesheet" href="style.css"></head><body><main><section class="hero"><div class="wrap"><h1 data-k="pf_h"></h1><p data-k="pf_p"></p></div></section>
-<section><div class="wrap"><div class="tabs" id="tabs" role="group"></div><div class="grid" id="work"></div></div></section></main><script src="app.js"></script>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio | Hook</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<main>
+<section class="phero"><div class="wrap"><span class="script" data-ar="شغلنا">Our work</span><h1 data-ar="أعمالنا">Portfolio</h1>
+<p data-ar="تصميم ومحتوى وشراء إعلانات لبراندات في العقارات والشحن والتعليم ونمط الحياة.">Design, content and media buying for brands across real estate, shipping, education and lifestyle.</p></div></section>
+<section style="padding-top:20px"><div class="wrap">
+<div class="tabs" id="tabs" role="group" aria-label="Filter"></div>
+<div class="grid" id="work"></div>
+</div></section>
+</main><script src="seed.js"></script><script src="app.js"></script>
 <script>
-let f='all';
-function show(){$('tabs').innerHTML=['all','Design','Content','Media Buying'].map(c=>'<button aria-pressed="'+(c==f)+'" data-f="'+c+'">'+t(c=='all'?'all':c)+'</button>').join('');
-$('work').innerHTML=getWork().filter(w=>f=='all'||w.cat==f).map(w=>'<article class="card work" data-work="'+w.id+'"><a href="'+w.img+'" target="_blank" rel="noopener"><img src="'+w.img+'" alt="'+L(w.t)+'" loading="lazy"></a><span class="tag">'+t(w.cat)+'</span><h3>'+L(w.t)+'</h3><p>'+L(w.d)+'</p></article>').join('');
-QA('[data-work]').forEach(card=>{const id=card.dataset.work;if(!card.dataset.tracked){card.dataset.tracked=1;Analytics.work(id)}})}
-$('tabs').onclick=e=>{const b=e.target.closest('button');if(b){f=b.dataset.f;show()}};onL(show);
+const CATS=[['all','All','الكل'],['Design','Design','تصميم'],['Content','Content','محتوى'],['Media Buying','Media Buying','شراء إعلانات']];
+let cf='all';
+const vio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){vio.unobserve(e.target);trackView(e.target.dataset.id)}}),{threshold:.6});
+onContent(()=>{
+  $('tabs').innerHTML=CATS.map(c=>'<button data-f="'+c[0]+'" aria-pressed="'+(c[0]==cf)+'">'+t(c[1],c[2])+'</button>').join('');
+  const cn=k=>t(k,(CATS.find(c=>c[0]==k)||[])[2]||k);
+  $('work').innerHTML=DB.work.filter(w=>cf=='all'||w.cat==cf).map(w=>'<article class="card work" data-k="work" data-id="'+esc(w.id)+'"><a data-view="'+esc(w.id)+'" href="'+esc(w.img)+'" target="_blank" rel="noopener" aria-label="'+esc(L(w.name))+'"><img src="'+esc(w.img)+'" alt="'+esc(L(w.name))+'" loading="lazy"></a><span class="tag">'+esc(cn(w.cat))+'</span><h3>'+esc(L(w.name))+'</h3><p>'+esc(L(w.desc))+'</p></article>').join('');
+  document.querySelectorAll('#work .card').forEach(c=>vio.observe(c));
+});
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(b){cf=b.dataset.f;runHooks()}};
 </script></body></html>

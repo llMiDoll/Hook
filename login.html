@@ -1,15 +1,30 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#FF512E"><title>Login — Hook</title><link rel="stylesheet" href="style.css"></head>
-<body class="auth-page"><main><section class="auth-shell"><div class="auth-grid"><div class="auth-brand"><div class="auth-kicker">HOOK / ACCESS_01</div><h1>Enter the<br><em>control room.</em></h1><p>Manage projects, packages, clients, quotes and site content from one digital workspace.</p><div class="auth-orbit"><span></span><i></i><b>ADMIN</b></div></div><div class="auth-card"><div class="auth-top"><img src="hook-ink.png" alt="Hook"><span id="modeLabel">ADMIN ACCESS</span></div><h2 id="ttl">Log in</h2><p class="auth-muted">Use your Hook admin credentials to continue.</p><form id="f" novalidate><label id="ln"><span data-t="name">Name</span><input name="name" autocomplete="name"></label><label><span data-t="email">Email</span><input name="email" type="email" required autocomplete="username" placeholder="mm.Mido1270@gmail.com"></label><label><span data-t="pw">Password</span><input name="pw" type="password" required autocomplete="current-password" placeholder="••••••••"></label><p class="err" id="err" role="alert"></p><button class="btn auth-submit" id="go" type="submit">Log in <span>↗</span></button></form><button type="button" class="auth-switch" id="sw">Create a client account</button><div class="auth-foot">HOOK DIGITAL SYSTEM <span>•</span> GITHUB PAGES</div></div></div></section></main><script src="app.js"></script><script>
-let reg=false;
-async function boot(){await Auth.users();update();}
-function update(){
-  $('ttl').textContent=t(reg?'register':'login');$('go').innerHTML=(reg?t('register'):t('login'))+' <span>↗</span>';$('sw').textContent=t(reg?'hasacct':'noacct');$('ln').style.display=reg?'':'none';$('err').textContent='';
-  $('modeLabel').textContent=reg?'CLIENT REGISTRATION':'ADMIN ACCESS';
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Account | Hook</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<main>
+<section class="phero"><div class="wrap"><span class="script" data-ar="حسابك">Your account</span><h1 data-ar="الدخول">Sign in</h1></div></section>
+<section style="padding-top:20px"><div class="wrap" id="box"></div></section>
+</main><script src="seed.js"></script><script src="app.js"></script>
+<script>
+let mode='login';
+function draw(){
+  const b=$('box');
+  if(ME){b.innerHTML='<div class="card" style="max-width:560px"><h3>'+esc(ME.username)+'</h3><p>'+esc(ME.email)+'</p><div class="btns" style="margin-top:18px">'+(ME.role==='admin'?'<a class="btn" href="dashboard.html">'+t('Dashboard','لوحة التحكم')+'</a>':'')+'<button class="btn" id="out">'+t('Logout','تسجيل الخروج')+'</button></div></div>';
+    $('out').onclick=async()=>{await post('/api/logout',{});location.reload()};return}
+  const reg=mode==='register';
+  b.innerHTML='<form class="card" id="af"><div class="tabs"><button type="button" data-m="login" aria-pressed="'+!reg+'">'+t('Sign in','دخول')+'</button><button type="button" data-m="register" aria-pressed="'+reg+'">'+t('Create account','حساب جديد')+'</button></div>'
+   +(reg?'<label><span>'+t('Username','اسم المستخدم')+'</span><input name="username" autocomplete="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+"></label><label><span>'+t('Email','الإيميل')+'</span><input name="email" type="email" autocomplete="email" required></label>'
+        :'<label><span>'+t('Username or email','اسم المستخدم أو الإيميل')+'</span><input name="id" autocomplete="username" required></label>')
+   +'<label><span>'+t('Password','كلمة المرور')+'</span><input name="password" type="password" autocomplete="'+(reg?'new-password':'current-password')+'" required minlength="'+(reg?8:1)+'"></label>'
+   +'<button class="btn" type="submit">'+(reg?t('Create account','إنشاء الحساب'):t('Sign in','دخول'))+'</button><p class="msg err" id="err"></p></form>';
+  b.querySelector('.tabs').onclick=e=>{const x=e.target.closest('button');if(x){mode=x.dataset.m;draw()}};
+  $('af').onsubmit=async e=>{
+    e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+    let r;try{r=await post(reg?'/api/register':'/api/login',d)}catch(x){$('err').textContent=t('The server is not running. Accounts need the Node server.','السيرفر مش شغال. الحسابات محتاجة سيرفر Node.');return}
+    const j=await r.json().catch(()=>({}));
+    if(r.ok)location.href=j.user.role==='admin'?'dashboard.html':'index.html';else $('err').textContent=j.error||'Error';
+  };
 }
-$('sw').onclick=()=>{reg=!reg;update()};
-$('f').onsubmit=async e=>{e.preventDefault();$('err').textContent='';const d=Object.fromEntries(new FormData(e.target)),em=d.email.trim().toLowerCase();if(!em||!d.pw)return $('err').textContent=t('bad');const us=await Auth.users(),h=await H(d.pw);let u;
-if(reg){if(d.pw.length<6)return $('err').textContent=t('short');if(us.some(x=>String(x.email).toLowerCase()===em))return $('err').textContent=t('exists');u={name:d.name.trim()||em.split('@')[0],email:em,pw:h,role:'client'};us.push(u);DB.set('users',us)}else{u=us.find(x=>String(x.email).toLowerCase()===em&&x.pw===h);if(!u&&em===ADMIN_DEFAULT.email.toLowerCase()&&d.pw===ADMIN_DEFAULT.password){u={name:ADMIN_DEFAULT.name,email:ADMIN_DEFAULT.email,pw:ADMIN_DEFAULT.hash,role:'admin'};DB.set('users',[u,...us.filter(x=>x.role!=='admin'&&String(x.email).toLowerCase()!==em)]);DB.set('auth_version',AUTH_VERSION)}if(!u)return $('err').textContent=t('bad')}
-Auth.set(u);location.replace(u.role==='admin'?'dashboard.html':'index.html')};
-boot();
+document.addEventListener('auth',draw);document.addEventListener('langchange',()=>{if(DB&&document.readyState)draw()});
 </script></body></html>

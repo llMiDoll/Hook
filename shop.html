@@ -1,8 +1,15 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shop | Hook</title>
-<link rel="stylesheet" href="style.css"></head><body><main><section class="hero"><div class="wrap"><h1 data-k="sh_h"></h1><p data-k="sh_p"></p></div></section>
-<section><div class="wrap"><div class="grid" id="shop"></div></div></section></main><script src="app.js"></script>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shop | Hook</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<main>
+<section class="phero"><div class="wrap"><span class="script" data-ar="المتجر">Shop</span><h1 data-ar="باقات التسويق">Marketing packages</h1>
+<p data-ar="اختار باقة، ضيفها للسلة وابعت الطلب على واتساب.">Pick a package, add it to your cart and send the order on WhatsApp.</p></div></section>
+<section style="padding-top:20px"><div class="wrap"><div class="grid" id="shop"></div></div></section>
+</main><script src="seed.js"></script><script src="app.js"></script>
 <script>
-onL(()=>{$('shop').innerHTML=getProducts().map((p,i)=>'<article class="card '+(i==5?'y':'')+'"><span class="tag">'+L(p.tag)+'</span><h3>'+L(p.name)+'</h3><ul class="tick">'+(p.items[lang]||p.items.en).map(x=>'<li>'+x+'</li>').join('')+'</ul><div class="price">'+p.price+' '+t('egp')+' <small>'+L(p.per)+'</small></div><button class="btn" data-id="'+p.id+'">'+t('add')+'</button></article>').join('')});
-$('shop').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const p=getProducts().find(x=>x.id==b.dataset.id);addToCart(p.name.en,p.price)};
+onContent(()=>{
+  $('shop').innerHTML=DB.products.map((p,n)=>'<article class="card '+(n==5?'g':'')+'" data-k="products" data-id="'+esc(p.id)+'"><span class="tag" style="background:var(--o)">'+esc(L(p.tag))+'</span><h3>'+esc(L(p.name))+'</h3><ul class="tick">'+p.items.map(x=>'<li>'+esc(L(x))+'</li>').join('')+'</ul><div class="price">'+p.price+' '+cur()+' <small>'+esc(L(p.per))+'</small></div><button class="btn" data-add="'+esc(p.id)+'">'+t('Add to cart','أضف للسلة')+'</button></article>').join('');
+});
+$('shop').onclick=e=>{const b=e.target.closest('[data-add]');if(b)addToCart(b.dataset.add)};
 </script></body></html>

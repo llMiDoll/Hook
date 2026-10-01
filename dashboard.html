@@ -1,71 +1,33 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard | Hook</title>
-<link rel="stylesheet" href="style.css"></head><body><main>
-<section class="hero" style="padding:60px 0"><div class="wrap"><p class="script">ADMIN</p><h1>Dashboard</h1><p>Manage the site, clients, projects, prices and quotes from one place.</p></div></section>
-<section style="padding-top:30px"><div class="wrap"><div class="tabs" id="tb"></div><div id="panel"></div></div></section>
-</main><script src="app.js"></script><script>
-const me0=Auth.me();if(!me0||me0.role!='admin')location.replace('login.html');
-const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const get=(o,p)=>p.split('.').reduce((a,k)=>a?.[k],o),setp=(o,p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((a,x)=>a[x]??={},o)[l]=v};
-const tabs=[['overview','Overview'],['texts','Site & contact'],['products','Shop / prices'],['work','Portfolio / projects'],['clients','Clients'],['quotes','Quotes'],['users','Accounts'],['account','Admin account']];
-let tab=location.hash.slice(1)||'overview',cur=[];
-const defaults={clients:[],quotes:[]};
-const read=k=>DB.get(k,defaults[k]||[]);
-const save=(k,v)=>DB.set(k,v);
-const shrink=(f,cb)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const z=Math.min(1,1100/im.width),c=document.createElement('canvas');c.width=im.width*z;c.height=im.height*z;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.82))};im.src=r.result};r.readAsDataURL(f)};
-const done=(b,m='Saved ✓')=>{const old=b.textContent;b.textContent=m;setTimeout(()=>b.textContent=old,1400)};
-function collectCards(){return QA('.ed').map((b,i)=>{const o=JSON.parse(JSON.stringify(cur[i]));QA('[data-p]',b).forEach(n=>{const ty=n.dataset.ty;setp(o,n.dataset.p,ty=='l'?n.value.split('\n').map(s=>s.trim()).filter(Boolean):ty=='n'?+n.value||0:n.value)});return o})}
-function metric(){const views=DB.get('analytics_views',{}),workV=DB.get('analytics_work',{}),sales=DB.get('analytics_sales',{});return {views,total:Object.values(views).reduce((a,b)=>a+b,0),workV,sales,accounts:DB.get('users',[]).length}}
-function overview(){
- const m=metric(), work=getWork(), products=getProducts(), topW=work.slice().sort((a,b)=>(m.workV[b.id]||0)-(m.workV[a.id]||0))[0], topP=products.slice().sort((a,b)=>(m.sales[b.id]||0)-(m.sales[a.id]||0))[0];
- const pages=Object.entries(m.views).sort((a,b)=>b[1]-a[1]); const max=Math.max(1,...pages.map(x=>x[1]));
- return '<div class="dashboard-grid">'+
- [['Total visits',m.total],['Accounts',m.accounts],['Clients',read('clients').length],['Quotes',read('quotes').length],['Most viewed project',topW?esc(L(topW.t)):'—'],['Best selling package',topP?esc(L(topP.name)):'—']].map(x=>'<div class="dashboard-stat"><small>'+x[0]+'</small><b>'+x[1]+'</b></div>').join('')+
- '<div class="split" style="margin-top:30px"><div class="card"><h3>Page views</h3>'+pages.map(([p,n])=>'<div class="chart-row"><span>'+esc(p)+'</span><strong>'+n+'</strong><div class="chart-bar" style="grid-column:1/3"><i style="--w:'+Math.round(n/max*100)+'%"></i></div></div>').join('')+'</div>'+
- '<div class="card"><h3>Projects viewed</h3>'+work.slice().sort((a,b)=>(m.workV[b.id]||0)-(m.workV[a.id]||0)).map(w=>'<div class="chart-row"><span>'+esc(L(w.t))+'</span><strong>'+(m.workV[w.id]||0)+'</strong></div>').join('')+'</div></div>';
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard | Hook</title><meta name="robots" content="noindex">
+<link rel="stylesheet" href="style.css"></head><body>
+<main>
+<section class="phero"><div class="wrap"><span class="script" data-ar="لوحة التحكم">Admin</span><h1 data-ar="الداشبورد">Dashboard</h1></div></section>
+<section style="padding-top:20px"><div class="wrap" id="dash"><p>…</p></div></section>
+</main><script src="seed.js"></script><script src="app.js"></script>
+<script>
+let ST=null;
+const bars=(rows,key,label,fmt)=>{const mx=Math.max(1,...rows.map(r=>r[key]));return '<div class="bars">'+rows.slice(0,8).map(r=>'<div class="bar"><span>'+esc(r[label])+'</span><i style="width:'+Math.max(2,r[key]/mx*100)+'%"></i><b>'+(fmt?fmt(r):r[key])+'</b></div>').join('')+'</div>'};
+const kpi=(n,en,a)=>'<div class="card kpi"><b>'+n+'</b>'+t(en,a)+'</div>';
+function draw(){
+  if(!ST)return;const s=ST,mx=Math.max(1,...s.days.map(d=>d.n)),c=s.counts;
+  $('dash').innerHTML=
+   '<div class="kpis">'+kpi(s.visits,'Total visits','إجمالي الزيارات')+kpi(s.today,'Visits today','زيارات النهارده')+kpi(s.week,'Last 7 days','آخر 7 أيام')+kpi(s.unique,'Unique visitors','زوار مختلفين')+kpi(s.accounts,'Accounts','عدد الحسابات')+kpi(s.orders.length,'Orders','الطلبات')+kpi(s.revenue+' '+cur(),'Order value','قيمة الطلبات')+'</div>'
+  +'<div class="cols"><div class="card"><h3>'+t('Visits, last 14 days','الزيارات، آخر 14 يوم')+'</h3><div class="days">'+s.days.map(d=>'<div style="height:'+Math.max(2,d.n/mx*100)+'%" title="'+d.d+'"><span>'+(d.n||'')+'</span></div>').join('')+'</div></div>'
+  +'<div class="card"><h3>'+t('Most viewed projects','أكتر المشاريع مشاهدة')+'</h3>'+(s.topWork.some(w=>w.views)?bars(s.topWork,'views','name'):'<p>'+t('No views yet.','لسه مفيش مشاهدات.')+'</p>')+'</div>'
+  +'<div class="card"><h3>'+t('Best-selling packages','الباقات الأكثر مبيعاً')+'</h3>'+(s.topProducts.length?bars(s.topProducts,'qty','name',r=>r.qty+' · '+r.revenue):'<p>'+t('No orders yet.','لسه مفيش طلبات.')+'</p>')+'</div>'
+  +'<div class="card"><h3>'+t('Page info','معلومات الصفحات')+'</h3><p>'+t('Projects','المشاريع')+': '+c.work+' · '+t('Clients','العملاء')+': '+c.clients+' · '+t('Packages','الباقات')+': '+c.products+'</p><div class="scroll"><table><tr><th>'+t('Page','الصفحة')+'</th><th>'+t('Visits','الزيارات')+'</th></tr>'+s.pages.map(p=>'<tr><td dir="ltr">'+esc(p.p)+'</td><td>'+p.n+'</td></tr>').join('')+'</table></div>'
+   +'<p style="margin-top:14px"><a class="btn" href="portfolio.html">'+t('Edit projects','تعديل المشاريع')+'</a> <a class="btn" href="shop.html">'+t('Edit price quotes','تعديل عروض الأسعار')+'</a> <a class="btn" href="index.html">'+t('Edit clients','تعديل العملاء')+'</a></p></div></div>'
+  +'<div class="card" style="margin-top:20px"><h3>'+t('Orders','الطلبات')+'</h3><div class="scroll"><table><tr><th>'+t('Date','التاريخ')+'</th><th>'+t('User','المستخدم')+'</th><th>'+t('Items','العناصر')+'</th><th>'+t('Total','الإجمالي')+'</th><th>'+t('Status','الحالة')+'</th></tr>'
+   +s.orders.map(o=>'<tr><td>'+esc(o.at.slice(0,10))+'</td><td>'+esc(o.user||'-')+'</td><td>'+o.items.map(i=>esc(i.name)+' × '+i.q).join(', ')+'</td><td>'+o.total+'</td><td><select data-o="'+esc(o.id)+'">'+['new','confirmed','done','cancelled'].map(x=>'<option'+(x==o.status?' selected':'')+'>'+x+'</option>').join('')+'</select></td></tr>').join('')+'</table></div></div>'
+  +'<div class="card" style="margin-top:20px"><h3>'+t('Accounts','الحسابات')+' ('+s.accounts+')</h3><div class="scroll"><table><tr><th>'+t('Username','المستخدم')+'</th><th>'+t('Email','الإيميل')+'</th><th>'+t('Role','الدور')+'</th><th>'+t('Joined','التسجيل')+'</th></tr>'
+   +s.users.map(u=>'<tr><td>'+esc(u.username)+'</td><td dir="ltr">'+esc(u.email)+'</td><td>'+esc(u.role)+'</td><td>'+esc(u.at.slice(0,10))+'</td></tr>').join('')+'</table></div></div>'
+  +'<form class="card" id="pw" style="margin-top:20px"><h3>'+t('Change admin password','تغيير باسورد الأدمن')+'</h3><label><span>'+t('Current password','الباسورد الحالي')+'</span><input name="old" type="password" autocomplete="current-password" required></label><label><span>'+t('New password (8+ characters)','الباسورد الجديد (8 حروف أو أكتر)')+'</span><input name="new" type="password" autocomplete="new-password" minlength="8" required></label><button class="btn">'+t('Save','حفظ')+'</button><p class="msg" id="pm"></p></form>';
+  $('pw').onsubmit=async e=>{e.preventDefault();const r=await post('/api/admin/password',Object.fromEntries(new FormData(e.target))),j=await r.json();$('pm').className='msg'+(r.ok?'':' err');$('pm').textContent=r.ok?t('Password changed.','تم تغيير الباسورد.'):j.error;if(r.ok)e.target.reset()};
+  document.querySelectorAll('[data-o]').forEach(sel=>sel.onchange=()=>fetch('/api/admin/orders/'+sel.dataset.o,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({status:sel.value})}).then(load));
 }
-function render(){
- $('tb').innerHTML=tabs.map(x=>'<button aria-pressed="'+(x[0]==tab)+'" data-tab="'+x[0]+'">'+x[1]+'</button>').join('');
- const p=$('panel');
- if(tab=='overview'){p.innerHTML=overview();return}
- if(tab=='texts'){
-  const s=site(),o=DB.get('tx',{});
-  p.innerHTML='<div class="card"><h3>Contact details</h3><div class="grid">'+[['wa','WhatsApp digits'],['phone','Phone display'],['email','Public email']].map(([k,l])=>'<label>'+l+'<input data-s="'+k+'" value="'+esc(s[k])+'"></label>').join('')+'</div></div>'+
-  '<h3 style="margin:30px 0 15px">Editable page text</h3>'+Object.keys(TX).map(k=>'<div class="rowk"><b>'+k+'</b><textarea rows="2" data-x="'+k+'" data-l="en">'+esc((o[k]||{}).en||TX[k][0])+'</textarea><textarea rows="2" dir="rtl" data-x="'+k+'" data-l="ar">'+esc((o[k]||{}).ar||TX[k][1])+'</textarea></div>').join('')+
-  '<p style="margin-top:20px"><button class="btn" id="saveText">Save changes</button></p>';return
- }
- if(tab=='products'||tab=='work'){
-  cur=tab=='products'?getProducts():getWork();
-  const sch=tab=='products'?[['name.en','Name EN'],['name.ar','Name AR'],['tag.en','Tag EN'],['tag.ar','Tag AR'],['price','Price EGP','n'],['per.en','Billing EN'],['per.ar','Billing AR'],['items.en','Items EN (one/line)','l'],['items.ar','Items AR (one/line)','l']]:[['cat','Category','s'],['t.en','Title EN'],['t.ar','Title AR'],['d.en','Description EN','t'],['d.ar','Description AR','t'],['img','Image','i']];
-  p.innerHTML=cur.map((o,i)=>'<div class="card ed"><button class="x" data-del="'+i+'">×</button>'+sch.map(([k,l,ty])=>ty=='i'?'<label>'+l+'<img src="'+o.img+'" alt=""><input type="file" accept="image/*" data-img="'+i+'"></label>':ty=='s'?'<label>'+l+'<select data-p="cat">'+['Design','Content','Media Buying'].map(c=>'<option '+(o.cat==c?'selected':'')+'>'+c+'</option>').join('')+'</select></label>':ty=='t'||ty=='l'?'<label>'+l+'<textarea rows="3" data-p="'+k+'" data-ty="'+ty+'">'+esc(ty=='l'?(get(o,k)||[]).join('\n'):get(o,k))+'</textarea></label>':'<label>'+l+'<input data-p="'+k+'" data-ty="'+(ty||'')+'" value="'+esc(get(o,k))+'"></label>').join('')+'</div>').join('')+
-  '<p style="margin-top:20px"><button class="btn" id="add">+ Add new</button> <button class="btn alt" id="saveCards">Save changes</button></p>';return
- }
- if(tab=='clients'){
-  cur=read('clients');p.innerHTML=cur.map((c,i)=>'<div class="card ed"><button class="x" data-del="'+i+'">×</button><label>Name<input data-p="name" value="'+esc(c.name)+'"></label><label>Email<input data-p="email" type="email" value="'+esc(c.email)+'"></label><label>Phone / WhatsApp<input data-p="phone" value="'+esc(c.phone)+'"></label><label>Company<input data-p="company" value="'+esc(c.company)+'"></label><label>Notes<textarea data-p="notes">'+esc(c.notes)+'</textarea></label></div>').join('')+'<p><button class="btn" id="add">+ Add client</button> <button class="btn alt" id="saveCards">Save clients</button></p>';return
- }
- if(tab=='quotes'){
-  cur=read('quotes');p.innerHTML=cur.map((q,i)=>'<div class="card ed"><button class="x" data-del="'+i+'">×</button><label>Client<input data-p="client" value="'+esc(q.client)+'"></label><label>Project / service<input data-p="project" value="'+esc(q.project)+'"></label><label>Amount EGP<input data-p="amount" data-ty="n" type="number" value="'+esc(q.amount)+'"></label><label>Status<select data-p="status"><option '+(q.status=='Draft'?'selected':'')+'>Draft</option><option '+(q.status=='Sent'?'selected':'')+'>Sent</option><option '+(q.status=='Accepted'?'selected':'')+'>Accepted</option><option '+(q.status=='Rejected'?'selected':'')+'>Rejected</option></select></label><label>Notes<textarea data-p="notes">'+esc(q.notes)+'</textarea></label></div>').join('')+'<p><button class="btn" id="add">+ Add quote</button> <button class="btn alt" id="saveCards">Save quotes</button></p>';return
- }
- if(tab=='users'){Auth.users().then(us=>{p.innerHTML='<div class="card"><h3>Registered accounts</h3>'+us.map((u,i)=>'<div class="row" style="display:flex;justify-content:space-between;gap:10px;align-items:center"><span><b>'+esc(u.name)+'</b> · '+esc(u.email)+' · '+u.role+'</span>'+(u.role!='admin'?'<button class="x" data-user="'+i+'">×</button>':'')+'</div>').join('')+'</div>'});return}
- p.innerHTML='<form id="ac" class="card"><h3>Admin login</h3><label>Admin username<input name="n" value="'+esc(me0.name)+'" required></label><label>Admin email<input name="e" type="email" value="'+esc(me0.email)+'" required></label><label>New password (min 6)<input name="p" type="password" minlength="6" placeholder="Leave unchanged only if you do not submit"></label><button class="btn">Update admin</button></form>';
-}
-$('tb').onclick=e=>{const b=e.target.closest('[data-tab]');if(b){tab=b.dataset.tab;location.hash=tab;render()}};
-$('panel').onclick=async e=>{
- const b=e.target.closest('button');if(!b)return;
- if(b.id=='saveText'){const s={},o={};QA('[data-s]').forEach(n=>s[n.dataset.s]=n.value.trim());QA('[data-x]').forEach(n=>(o[n.dataset.x]??={})[n.dataset.l]=n.value);DB.set('site',s);DB.set('tx',o);done(b);paint();return}
- if(b.id=='saveCards'){save(tab,collectCards());done(b);paint();return}
- if(b.id=='add'){
-  cur=collectCards();
-  const item=tab=='products'?{id:Date.now(),name:{en:'New package',ar:'باقة جديدة'},tag:{en:'',ar:''},price:0,per:{en:'month',ar:'شهرياً'},items:{en:[],ar:[]}}:
-   tab=='work'?{id:Date.now(),cat:'Design',t:{en:'New project',ar:'مشروع جديد'},d:{en:'',ar:''},img:'hook-tag-ink.png'}:
-   tab=='clients'?{id:Date.now(),name:'',email:'',phone:'',company:'',notes:''}:
-   {id:Date.now(),client:'',project:'',amount:0,status:'Draft',notes:''};
-  cur.push(item);save(tab,cur);render();return
- }
- if(b.dataset.del!==undefined){cur=collectCards();cur.splice(+b.dataset.del,1);save(tab,cur);render();return}
- if(b.dataset.user!==undefined){const us=await Auth.users();us.splice(+b.dataset.user,1);DB.set('users',us);render();return}
-};
-$('panel').onchange=e=>{const n=e.target;if(n.dataset.img!==undefined&&n.files[0])shrink(n.files[0],d=>{cur=collectCards();cur[+n.dataset.img].img=d;save(tab,cur);render()})};
-$('panel').onsubmit=async e=>{if(e.target.id!='ac')return;e.preventDefault();const d=new FormData(e.target),us=await Auth.users(),a=us.find(x=>x.role=='admin');a.name=d.get('n').trim();a.email=d.get('e').trim().toLowerCase();if(d.get('p'))a.pw=await H(d.get('p'));DB.set('users',us);Auth.set(a);done(e.target.querySelector('button'),'Updated ✓')};
-render();
+async function load(){const r=await fetch('/api/admin/stats');if(r.status===401){location.href='login.html';return}ST=await r.json();draw()}
+load().catch(()=>{$('dash').innerHTML='<p>'+t('The server is not running.','السيرفر مش شغال.')+'</p>'});
+document.addEventListener('langchange',draw);
 </script></body></html>

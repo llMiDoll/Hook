@@ -1,155 +1,138 @@
-const $=id=>document.getElementById(id),Q=(s,r=document)=>r.querySelector(s),QA=(s,r=document)=>[...r.querySelectorAll(s)];
-const DB={get(k,d){try{const v=localStorage.getItem('hk_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('hk_'+k,JSON.stringify(v));return true}catch(e){alert('Storage is full. Use smaller images.');return false}},del(k){try{localStorage.removeItem('hk_'+k)}catch(e){}}};
-/* ---------- lightweight analytics for this browser demo ---------- */
-const Analytics={
-  visit(){
-    const p=location.pathname.split('/').pop()||'index.html';
-    const views=DB.get('analytics_views',{});
-    views[p]=(views[p]||0)+1;DB.set('analytics_views',views);
-  },
-  work(id){const v=DB.get('analytics_work',{});v[id]=(v[id]||0)+1;DB.set('analytics_work',v)},
-  sale(id){const v=DB.get('analytics_sales',{});v[id]=(v[id]||0)+1;DB.set('analytics_sales',v)}
-};
-Analytics.visit();
+const $=id=>document.getElementById(id);
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-let lang=DB.get('lang','en');
-/* ---------- UI strings [en, ar] ---------- */
-const U={home:['Home','الرئيسية'],services:['Services','خدماتنا'],portfolio:['Portfolio','شغلنا'],shop:['Shop','المتجر'],contact:['Contact','كلّمنا'],dash:['Dashboard','لوحة التحكم'],cart:['Cart','السلة'],login:['Log in','دخول'],logout:['Log out','خروج'],yc:['Your cart','سلتك'],empty:['Your cart is empty. Pick a package from the shop.','السلة فاضية. اختار باقة من المتجر.'],total:['Total','الإجمالي'],order:['Order on WhatsApp','اطلب على واتساب'],add:['Add to cart','ضيف للسلة'],all:['All','الكل'],Design:['Design','تصميم'],Content:['Content','محتوى'],'Media Buying':['Media Buying','ميديا باينج'],egp:['EGP','ج.م'],lang:['العربية','English'],night:['Night mode','الوضع الليلي'],
-name:['Name','الاسم'],email:['Email','الإيميل'],pw:['Password','الباسورد'],register:['Create account','اعمل حساب'],noacct:['New here? Create an account','أول مرة؟ اعمل حساب'],hasacct:['Have an account? Log in','عندك حساب؟ ادخل'],bad:['Wrong email or password.','الإيميل أو الباسورد غلط.'],exists:['This email already has an account. Log in instead.','الإيميل ده عليه حساب. ادخل بيه.'],short:['Password must be at least 6 characters.','الباسورد لازم يكون 6 حروف على الأقل.'],
-o1:['Social media','سوشيال ميديا'],o2:['Content','محتوى'],o3:['Design and branding','تصميم وهوية'],o4:['Media buying','ميديا باينج'],o5:['Not sure yet','لسه مش متأكد'],direct:['Direct','تواصل مباشر'],wait:['Loading…','ثانية واحدة…'],cpc:['EGP per conversation','ج.م للمحادثة'],conv:['conversations','محادثة'],brands:['brands','براند'],eg:['Egypt','مصر']};
-const t=k=>(U[k]||[k,k])[lang=='ar'?1:0],L=o=>o?(o[lang]||o.en||''):'';
-/* ---------- editable page texts [en, ar] ---------- */
-const TX={
-h1:['We help brands become unforgettable.','بنخلّي براندك محدش ينساه.'],
-hp:["Hook is a full-service marketing agency built to grow brands and drive real results, whether you're launching, scaling or rebranding.",'هوك وكالة تسويق متكاملة، شغلتنا نكبّر البراند ونجيبلك نتايج بجد، سواء لسه بادئ أو عايز تكبر أو ناوي تغيّر هويتك.'],
-b1:['Start a project','ابدأ مشروعك'],b2:['See our work','شوف شغلنا'],
-ab:['About us','مين إحنا'],abh:['Right audience. Right message. Right time.','الجمهور الصح. الرسالة الصح. في الوقت الصح.'],
-abp:['We handle everything from social media management, content creation and branding to strategic media buying and performance marketing.','بنظبطلك كل حاجة: من إدارة السوشيال ميديا وكتابة المحتوى والهوية، لحد الميديا باينج والتسويق بالأداء.'],
-vis:['Vision','رؤيتنا'],visp:['To be the go-to digital partner for ambitious brands in the MENA region, turning ideas into impact and campaigns into legacies.','نبقى الشريك الرقمي الأول للبراندات الطموحة في المنطقة، ونحوّل الفكرة لتأثير والحملة لحاجة تفضل.'],
-mis:['Mission','مهمتنا'],misp:['We craft data-driven strategies, compelling content, eye-catching designs and high-converting ad campaigns. We build growth, awareness and brand love.','بنعمل خطط مبنية على أرقام، ومحتوى يشد، وتصميمات تلفت، وإعلانات بتبيع، عشان البراند بتاعك يكبر ويتعرف وناسه يحبوه.'],
-feat:['Featured work','شغل مختار'],
-res:['Results','النتائج'],resh:['Numbers from real campaigns','أرقام من حملات حقيقية'],
-s1:['conversations started for an education client at 4.56 EGP each','محادثة لعميل في التعليم، بـ 4.56 ج.م للمحادثة'],
-s2:['conversations for a real estate project at 59.19 EGP each','محادثة لمشروع عقاري، بـ 59.19 ج.م للمحادثة'],
-s3:['conversations for a second real estate project','محادثة لمشروع عقاري تاني'],
-cl:['Our clients','عملاؤنا'],clh:['Brands that trust Hook','براندات وثقت في هوك'],
-cta:['Ready to catch attention?','جاهز تشد الانتباه؟'],ctap:["Tell us about your brand and we'll come back with a plan.",'احكيلنا عن براندك وهنرجعلك بخطة.'],ctab:['Contact us','كلّمنا'],
-sv_h:['Services','خدماتنا'],sv_p:['Strategy, content, design and paid media under one roof.','استراتيجية ومحتوى وتصميم وإعلانات مدفوعة في مكان واحد.'],
-sv1:['Social media management','إدارة السوشيال ميديا'],sv1d:['Planning, posting and community management that keeps your brand active and consistent.','تخطيط ونشر وردود على الناس، عشان براندك يفضل شغّال وثابت.'],
-sv2:['Content creation','كتابة المحتوى'],sv2d:['Strategically written posts, ad copy and brand storytelling for real estate, shipping, education and more.','بوستات وإعلانات وحكاية براند مكتوبة بتفكير، للعقارات والشحن والتعليم وغيرهم.'],
-sv3:['Design and branding','التصميم والهوية'],sv3d:['Logos, social graphics, ads, brochures, site maps, packaging and labels.','لوجوهات وتصميمات سوشيال وإعلانات وبروشورات وخرائط وتغليف وليبلز.'],
-sv4:['Media buying','الميديا باينج'],sv4d:['Data-driven Meta Ads and Google Display campaigns that turn impressions into leads.','حملات ميتا وجوجل ديسبلاي مبنية على أرقام، بتحوّل المشاهدة لعميل.'],
-sv5:['Performance marketing','التسويق بالأداء'],sv5d:['We track cost per conversation and optimize until each campaign pays for itself.','بنتابع تكلفة كل محادثة ونظبط الحملة لحد ما تغطي تكلفتها.'],
-sv6:['Rebranding','تغيير الهوية'],sv6d:['A fresh identity and message for brands that have outgrown their look.','شكل ورسالة جديدة للبراند اللي كبر على هويته القديمة.'],
-svb:['Browse packages in the shop','شوف الباقات في المتجر'],
-pf_h:['Portfolio','شغلنا'],pf_p:['Design, content and media buying for brands across real estate, shipping, education and lifestyle.','تصميم ومحتوى وميديا باينج لبراندات في العقارات والشحن والتعليم واللايف ستايل.'],
-sh_h:['Marketing packages','باقات التسويق'],sh_p:['Pick a package, add it to your cart and send the order on WhatsApp.','اختار باقة وضيفها للسلة وابعت الطلب على واتساب.'],
-ct_h:['Contact','كلّمنا'],ct_p:['Tell us about your brand. We reply on WhatsApp or email.','احكيلنا عن براندك. بنرد عليك على واتساب أو الإيميل.'],
-f_n:['Name','اسمك'],f_b:['Brand or company','البراند أو الشركة'],f_s:['What do you need?','محتاج إيه؟'],f_m:['Message','رسالتك'],f_send:['Send on WhatsApp','ابعت على واتساب']};
-/* ---------- default products & work (editable in the dashboard) ---------- */
-const P=(id,n,na,tg,tga,price,per,pera,ie,ia)=>({id,name:{en:n,ar:na},tag:{en:tg,ar:tga},price,per:{en:per,ar:pera},items:{en:ie,ar:ia}});
-const PRODUCTS=[
-P(1,'Social Media Starter','باقة السوشيال الأساسية','Social media','سوشيال ميديا',3500,'month','شهرياً',['12 designed posts','4 stories','Basic community replies'],['12 بوست متصمم','4 ستوريز','ردود أساسية على الناس']),
-P(2,'Social Media Growth','باقة السوشيال للنمو','Social media','سوشيال ميديا',6500,'month','شهرياً',['20 designed posts','8 videos or reels','Full community management','Monthly report'],['20 بوست متصمم','8 فيديوهات أو ريلز','إدارة كاملة للصفحة والرد على الناس','تقرير شهري']),
-P(3,'Brand Identity','الهوية البصرية','Branding','هوية',8000,'one time','مرة واحدة',['Logo and color palette','Typography','Social media templates'],['لوجو وألوان البراند','الخطوط','قوالب للسوشيال ميديا']),
-P(4,'Ads Management','إدارة الإعلانات','Media buying','ميديا باينج',4000,'month + ad spend','شهرياً + ميزانية الإعلان',['Meta Ads campaigns','Audience targeting','Weekly optimization'],['حملات إعلانات ميتا','استهداف الجمهور المناسب','تظبيط أسبوعي للحملة']),
-P(5,'Content Pack','باقة المحتوى','Content','محتوى',2500,'one time','مرة واحدة',['15 written posts','Ad copy variations','Brand voice guide'],['15 بوست مكتوب','نسخ متعددة للإعلانات','دليل نبرة صوت البراند']),
-P(6,'Full Launch Bundle','باقة الإطلاق الكاملة','Bundle','باقة متكاملة',15000,'one time','مرة واحدة',['Brand identity','1 month of social media','1 month of ads management'],['هوية بصرية','شهر سوشيال ميديا','شهر إدارة إعلانات'])];
-const W=(id,cat,t,ta,d,da,img)=>({id,cat,t:{en:t,ar:ta},d:{en:d,ar:da},img});
-const WORK=[
-W(1,'Design','JMG Real Estate','جي إم جي العقارية','Designs that bring properties to life: social graphics, ads, brochures, site maps and branding that sells the lifestyle before the unit.','تصميمات بتخلّي العقار يتكلم: سوشيال وإعلانات وبروشورات وخرائط وهوية بتبيع الحياة قبل الوحدة.','img/jmg-design.jpg'),
-W(2,'Design','M.A Express','إم إيه إكسبريس','Designs that deliver confidence: branded packaging, truck graphics, social visuals and ads for a shipping company.','تصميمات بتبني الثقة: تغليف وجرافيك للعربيات وسوشيال وإعلانات لشركة شحن.','img/ma-design.jpg'),
-W(3,'Design','Lumière Candles','لوميير للشموع','Warm designs for warm moments: packaging, labels and social content for handmade candles.','تصميمات دافية للحظات دافية: تغليف وليبلز ومحتوى سوشيال لشموع يدوية.','img/lumiere-design.jpg'),
-W(4,'Content','Global Premier Properties','جلوبال بريمير العقارية','Real estate content that sells before the site is built, from ad creatives to brand storytelling.','محتوى عقاري بيبيع قبل ما الموقع يتعمل، من الإعلانات لحكاية البراند.','img/gpp-content.jpg'),
-W(5,'Content','BestRate','بيست ريت','Content for the shipping industry: social posts and ad copy that highlight speed, safety and trust.','محتوى لمجال الشحن: بوستات وإعلانات بتبرز السرعة والأمان والثقة.','img/bestrate-content.jpg'),
-W(6,'Content','Silsal Corporation','سلسال','Persuasive content for postgraduate courses and executive diplomas.','محتوى مقنع لكورسات الدراسات العليا والدبلومات التنفيذية.','img/silsal-content.jpg'),
-W(7,'Media Buying','JMG Real Estate','جي إم جي العقارية','Meta Ads and Google Display campaigns for qualified buyers. Two projects delivered 253 and 158 conversations.','حملات ميتا وجوجل ديسبلاي لمشترين جادين. مشروعين جابوا 253 و158 محادثة.','img/jmg-media.jpg'),
-W(8,'Media Buying','The Act of Teaching','ذا أكت أوف تيتشينج','Ad campaigns for online courses: 362 conversations at 4.56 EGP per conversation.','حملات إعلانية لكورسات أونلاين: 362 محادثة بتكلفة 4.56 ج.م للمحادثة.','img/education-media.jpg')];
-const getProducts=()=>DB.get('products',PRODUCTS),getWork=()=>DB.get('work',WORK);
-const site=()=>{
-  const saved=DB.get('site',{}), defaults={wa:'201120767519',email:'mm.Mido1270@gmail.com',phone:'+20 112 076 7519'};
-  if(saved.email==='info.h00k.marketing@gmail.com' || saved.wa==='201277204746'){const migrated=Object.assign({},saved,defaults);DB.set('site',migrated);return migrated}
-  return Object.assign(defaults,saved)
-};
-const txt=k=>{const o=(DB.get('tx',{})[k]||{})[lang];return o||TX[k][lang=='ar'?1:0]};
-/* ---------- auth (browser-only demo: see README) ---------- */
-const ADMIN_DEFAULT={name:'Mido',email:'mm.Mido1270@gmail.com',password:'Hook@2026',hash:'2b597b47949e475bfd691ea9834c72c95d1b78162c209179a246104ecdc93d91'};
-const H=async s=>{
-  const value='hook|'+String(s);
-  try{
-    if(window.crypto?.subtle){
-      const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));
-      return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
-    }
-  }catch(e){}
-  let h=0x811c9dc5;for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,0x01000193)}
-  return (h>>>0).toString(16).padStart(8,'0');
-};
-const AUTH_VERSION=3;
-const Auth={
-  H,
-  me:()=>DB.get('me',null),
-  set:u=>DB.set('me',{name:u.name,email:u.email,role:u.role}),
-  out(){DB.del('me');location.replace('index.html')},
-  async users(){
-    let u=DB.get('users',[]); if(!Array.isArray(u))u=[];
-    // Reset only once to migrate broken/stale builds. Later admin changes are preserved.
-    if(DB.get('auth_version',0)!==AUTH_VERSION){
-      u=u.filter(x=>String(x?.email||'').toLowerCase()!==ADMIN_DEFAULT.email.toLowerCase() && x?.role!=='admin');
-      u.unshift({name:ADMIN_DEFAULT.name,email:ADMIN_DEFAULT.email,pw:ADMIN_DEFAULT.hash,role:'admin'});
-      DB.set('users',u);DB.set('auth_version',AUTH_VERSION);
-    }
-    if(!u.some(x=>x?.role==='admin')){u.unshift({name:ADMIN_DEFAULT.name,email:ADMIN_DEFAULT.email,pw:ADMIN_DEFAULT.hash,role:'admin'});DB.set('users',u)}
-    return u;
-  }
-};
-/* ---------- shell ---------- */
-const pages=[['index.html','home'],['services.html','services'],['portfolio.html','portfolio'],['shop.html','shop'],['contact.html','contact']];
+const ar=()=>document.documentElement.lang=='ar';
+const t=(en,a)=>ar()?a:en;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const L=o=>o?(ar()?(o.ar||o.en):(o.en||o.ar))||'':'';
+const fmtPhone=d=>/^20\d{10}$/.test(d)?`+20 ${d.slice(2,5)} ${d.slice(5,8)} ${d.slice(8)}`:'+'+d;
+const pages=[['index.html','Home','الرئيسية'],['services.html','Services','خدماتنا'],['portfolio.html','Portfolio','أعمالنا'],['shop.html','Shop','المتجر'],['contact.html','Contact','تواصل معنا']];
 const here=location.pathname.split('/').pop()||'index.html';
-const editTab={'index.html':'texts','services.html':'texts','portfolio.html':'work','shop.html':'products','contact.html':'texts'};
+const post=(u,b)=>fetch(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});
+let DB=null,ME=null;const hooks=[];
+const onContent=fn=>{hooks.push(fn);if(DB)fn()};
+const loadScript=s=>new Promise(r=>{const e=document.createElement('script');e.src=s;e.onload=e.onerror=r;document.head.appendChild(e)});
 
-document.head.insertAdjacentHTML('beforeend','<link rel="icon" href="hook-ink.png"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400..700&family=Cairo:wght@400;700;900&family=Silkscreen&display=swap">');
-document.body.insertAdjacentHTML('afterbegin',`<div id="pb"></div><header><nav>
-<a class="logo" href="index.html" aria-label="Hook"><img class="lg-l" src="hook-ink.png" alt="Hook"><img class="lg-d" src="hook-cream.png" alt="Hook"></a>
-<ul id="nv"></ul>
-<div class="ctl"><button class="pill" id="lang"></button><a class="pill" id="acct" href="login.html"></a><button class="pill dk" id="cartbtn"></button>
-<button class="ic" id="theme"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M21 14.6A9 9 0 0 1 9.4 3 9 9 0 1 0 21 14.6z"/></svg></button></div></nav></header>
-<aside id="cart"><button class="x" id="cx">×</button><h2 id="ct"></h2><ul id="items"></ul><p id="tot"></p><button class="btn" id="order"></button></aside>`);
-document.body.insertAdjacentHTML('beforeend','<footer><div class="wrap"><img class="flogo" src="hook-tag-cream.png" alt="Hook - Catch The Attention"><div id="fc"></div></div></footer>');document.body.insertAdjacentHTML('beforeend','<a class="admin-edit admin-only" id="editPage" href="dashboard.html">✎ Edit this page</a>');
-let cart=DB.get('cart',[]);
-const money=n=>n+' '+t('egp'),sum=()=>cart.reduce((a,i)=>a+i.price*i.q,0);
-function drawCart(){$('cartbtn').innerHTML=`${t('cart')} (${cart.reduce((a,i)=>a+i.q,0)})`;$('ct').textContent=t('yc');$('order').textContent=t('order');
-$('items').innerHTML=cart.length?cart.map((i,n)=>`<li><span>${i.name} × ${i.q}</span><span>${money(i.price*i.q)} <button class="x" data-rm="${n}" aria-label="Remove">×</button></span></li>`).join(''):`<li>${t('empty')}</li>`;
-$('tot').textContent=cart.length?t('total')+': '+money(sum()):'';$('order').style.display=cart.length?'':'none'}
-const saveCart=()=>{DB.set('cart',cart);drawCart()};
-window.addToCart=(name,price)=>{const f=cart.find(i=>i.name===name);f?f.q++:cart.push({name,price,q:1});saveCart();$('cart').classList.add('open')};
-$('cartbtn').onclick=()=>$('cart').classList.toggle('open');$('cx').onclick=()=>$('cart').classList.remove('open');
+/* ---------- head, header, footer ---------- */
+document.head.insertAdjacentHTML('beforeend','<link rel="icon" href="favicon.png"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;800;900&family=Sacramento&family=Aref+Ruqaa:wght@700&family=Silkscreen&display=swap">');
+document.body.insertAdjacentHTML('afterbegin',`<div id="bar"></div><header><nav>
+<a class="logo" href="index.html" aria-label="Hook"><img src="logo-cream.png" alt="Hook" height="38"></a>
+<ul>${pages.map(([h,e,a])=>`<li><a href="${h}" data-ar="${a}" ${h===here?'aria-current="page"':''}>${e}</a></li>`).join('')}</ul>
+<div class="tools"><button class="ibtn" id="lang" aria-label="Language">العربية</button>
+<button class="ibtn" id="theme" aria-pressed="false" aria-label="Night mode"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+<a class="ibtn" id="acct" href="login.html" aria-label="Account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></a>
+<button class="ibtn cartbtn" id="cartbtn"><span data-ar="السلة">Cart</span> (<span id="cnt">0</span>)</button></div></nav></header>
+<aside id="cart" aria-label="Cart"><button class="x" id="cx" aria-label="Close">×</button>
+<h2 data-ar="سلتك">Your cart</h2><ul id="items"></ul><p id="tot" style="margin:18px 0;font-weight:800"></p>
+<button class="btn" id="order" data-ar="اطلب عبر واتساب">Order on WhatsApp</button></aside>`);
+document.body.insertAdjacentHTML('beforeend',`<footer><div class="wrap"><img class="flogo" src="logotag-cream.png" alt="Hook - Catch The Attention"><div id="fcontact" data-k="contact"></div></div></footer>`);
+
+/* ---------- language ---------- */
+function splitHero(){const h=document.querySelector('.hero h1');if(!h||reduce)return;const s=h.textContent;h.setAttribute('aria-label',s);h.innerHTML=s.split(' ').map((w,i)=>`<span class="w" aria-hidden="true"><span style="--i:${i}">${w}</span></span>`).join(' ')}
+function applyLang(l){
+  const d=document.documentElement;d.lang=l;d.dir=l=='ar'?'rtl':'ltr';
+  document.querySelectorAll('[data-ar]').forEach(el=>{if(el.dataset.en===undefined)el.dataset.en=el.textContent;el.textContent=l=='ar'?el.dataset.ar:el.dataset.en});
+  $('lang').textContent=l=='ar'?'EN':'العربية';
+  try{localStorage.setItem('hooklang',l)}catch(e){}
+  splitHero();if(DB)runHooks();
+  document.dispatchEvent(new Event('langchange'));
+}
+$('lang').onclick=()=>applyLang(ar()?'en':'ar');
+
+/* ---------- content ---------- */
+function fillContact(){
+  const c=DB.contact,wa='https://wa.me/'+c.whatsapp;
+  $('fcontact').innerHTML=`<a href="${wa}" dir="ltr">${fmtPhone(c.whatsapp)}</a><br><a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`;$('fcontact').removeAttribute('data-ed');
+  document.querySelectorAll('[data-wa]').forEach(a=>{a.href=wa;a.textContent=fmtPhone(c.whatsapp)});
+  document.querySelectorAll('[data-mail]').forEach(a=>{a.href='mailto:'+c.email;a.textContent=c.email});
+}
+function runHooks(){
+  cart=cart.filter(i=>prod(i.id));
+  document.querySelectorAll('[data-btn]').forEach(a=>{const b=DB.buttons&&DB.buttons[a.dataset.btn];if(b){a.textContent=L(b.label);a.href=b.href}});
+  fillContact();renderCart();hooks.forEach(f=>f());
+}
+async function jget(u){try{const r=await fetch(u);return r.ok?await r.json():null}catch(e){return null}}
+window.reloadContent=async()=>{DB=(await jget('/api/content'))||DB;runHooks()};
+
+/* ---------- theme and sea depth color ---------- */
+const PAL={light:[[255,81,46],[156,43,22],[29,29,27]],dark:[[0,85,80],[9,59,56],[12,18,17]]};
+function paint(){
+  const m=Math.max(1,document.documentElement.scrollHeight-innerHeight),d=window.DEPTH=Math.min(1,Math.max(0,scrollY/m));
+  const P=PAL[document.documentElement.dataset.theme||'light'],a=d<.5?P[0]:P[1],b=d<.5?P[1]:P[2],k=d<.5?d*2:(d-.5)*2;
+  document.documentElement.style.setProperty('--bg',`rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*k))})`);
+  document.body.classList.toggle('deep',d>.5);
+  $('bar').style.transform=`scaleX(${d})`;
+}
+function setTheme(m){document.documentElement.dataset.theme=m;$('theme').setAttribute('aria-pressed',m=='dark');try{localStorage.setItem('hooktheme',m)}catch(e){}paint()}
+$('theme').onclick=()=>setTheme(document.documentElement.dataset.theme=='dark'?'light':'dark');
+addEventListener('scroll',paint,{passive:true});addEventListener('resize',paint);
+new ResizeObserver(paint).observe(document.body);
+
+/* ---------- cart ---------- */
+let cart=[];try{cart=JSON.parse(localStorage.getItem('hookcart'))||[]}catch(e){}
+const prod=id=>DB&&DB.products.find(p=>p.id===id);
+const cur=()=>t('EGP','ج.م');
+function saveCart(){try{localStorage.setItem('hookcart',JSON.stringify(cart))}catch(e){}renderCart()}
+function renderCart(){
+  $('cnt').textContent=cart.reduce((a,i)=>a+i.q,0);if(!DB)return;
+  const tot=cart.reduce((a,i)=>a+prod(i.id).price*i.q,0);
+  $('items').innerHTML=cart.length?cart.map((i,n)=>{const p=prod(i.id);return `<li><span>${esc(L(p.name))} × ${i.q}</span><span>${p.price*i.q} ${cur()} <button class="x" data-rm="${n}" aria-label="Remove">×</button></span></li>`}).join(''):`<li>${t('Your cart is empty. Pick a package from the shop.','سلتك فاضية. اختار باقة من المتجر.')}</li>`;
+  $('tot').textContent=cart.length?`${t('Total','الإجمالي')}: ${tot} ${cur()}`:'';
+  $('order').style.display=cart.length?'':'none';
+}
+window.addToCart=id=>{const f=cart.find(i=>i.id==id);f?f.q++:cart.push({id,q:1});saveCart();$('cart').classList.add('open')};
+$('cartbtn').onclick=()=>$('cart').classList.toggle('open');
+$('cx').onclick=()=>$('cart').classList.remove('open');
 $('items').onclick=e=>{const n=e.target.dataset.rm;if(n!==undefined){cart.splice(n,1);saveCart()}};
-$('order').onclick=()=>{const me=Auth.me(),s=site();cart.forEach(i=>{const p=getProducts().find(x=>x.name.en===i.name);if(p)Analytics.sale(p.id)});open(`https://wa.me/${s.wa}?text=`+encodeURIComponent((me?`Hi Hook, I'm ${me.name} (${me.email}). I want to order:\n`:'Hi Hook, I want to order:\n')+cart.map(i=>`- ${i.name} × ${i.q} (${i.price*i.q} EGP)`).join('\n')+'\nTotal: '+sum()+' EGP'),'_blank')};
-/* ---------- language + theme ---------- */
-const R=[];window.onL=f=>{R.push(f);f()};
-function paint(){const me=Auth.me(),s=site();document.body.classList.toggle('is-admin',!!(me&&me.role=='admin'));document.documentElement.lang=lang;document.documentElement.dir=lang=='ar'?'rtl':'ltr';
-$('nv').innerHTML=[...pages,...(me&&me.role=='admin'?[['dashboard.html','dash']]:[])].map(([h,k])=>`<li><a href="${h}" ${h==here?'aria-current="page"':''}>${t(k)}</a></li>`).join('');
-if($('editPage'))$('editPage').href='dashboard.html#'+(editTab[here]||'texts');
-$('lang').textContent=t('lang');$('theme').setAttribute('aria-label',t('night'));$('theme').title=t('night');
-const a=$('acct');a.textContent=me?`${me.name} · ${t('logout')}`:t('login');a.onclick=me?e=>{e.preventDefault();Auth.out()}:null;
-$('fc').innerHTML=`<a href="https://wa.me/${s.wa}">${s.phone}</a><br><a href="mailto:${s.email}">${s.email}</a>`;
-QA('[data-k]').forEach(e=>e.textContent=txt(e.dataset.k));QA('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
-const h=Q('.hero h1');if(h&&!reduce){const x=h.textContent;h.setAttribute('aria-label',x);h.innerHTML=x.split(' ').map((w,i)=>`<span class="w" aria-hidden="true"><span style="--i:${i}">${w}</span></span>`).join(' ')}
-drawCart();R.forEach(f=>f())}
-$('lang').onclick=()=>{lang=lang=='ar'?'en':'ar';DB.set('lang',lang);paint()};
-function setTheme(v){document.documentElement.dataset.theme=v;$('theme').setAttribute('aria-pressed',v=='dark');DB.set('theme',v);window.onTheme&&window.onTheme()}
-setTheme(DB.get('theme','dark'));$('theme').onclick=()=>setTheme(document.documentElement.dataset.theme=='dark'?'light':'dark');
-/* ---------- motion ---------- */
-function count(b){const n=+b.textContent;if(!n)return;const t0=performance.now();(function f(x){const p=Math.min((x-t0)/1300,1);b.textContent=Math.round(n*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)})(t0)}
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;io.unobserve(el);el.classList.add('in');const b=el.classList.contains('stat')&&el.querySelector('b');if(b)count(b);setTimeout(()=>el.classList.remove('reveal','in'),1300)}),{threshold:.12});
-function watch(){if(reduce)return;QA('main section:not(.hero) h2,main .sl,main .carousel').forEach(el=>{if(el.dataset.w)return;el.dataset.w=1;el.classList.add('reveal');el.style.setProperty('--d',[...el.parentNode.children].indexOf(el)%5*.09+'s');io.observe(el)})}
-watch();new MutationObserver(watch).observe(Q('main'),{childList:true,subtree:true});
-addEventListener('scroll',()=>{$('pb').style.transform=`scaleX(${scrollY/Math.max(1,document.body.scrollHeight-innerHeight)})`},{passive:true});
-if(matchMedia('(pointer:fine)').matches&&!reduce){document.body.insertAdjacentHTML('beforeend','<i id="cd"></i><i id="cr"></i>');document.documentElement.classList.add('cur');let cx=-50,cy=-50,rx=-50,ry=-50;
-addEventListener('pointermove',e=>{cx=e.clientX;cy=e.clientY;$('cd').style.transform=`translate(${cx}px,${cy}px)`});
-(function L(){rx+=(cx-rx)*.16;ry+=(cy-ry)*.16;$('cr').style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(L)})();
-document.addEventListener('pointerover',e=>$('cr').classList.toggle('big',!!e.target.closest('a,button,input,textarea,select,.row,.card,.sl')));
-document.addEventListener('pointerdown',()=>$('cr').classList.add('dn'));document.addEventListener('pointerup',()=>$('cr').classList.remove('dn'))}
-QA('.btn').forEach(b=>{if(reduce)return;b.addEventListener('pointermove',e=>{const r=b.getBoundingClientRect();b.style.translate=`${(e.clientX-r.left-r.width/2)*.15}px ${(e.clientY-r.top-r.height/2)*.25}px`});b.addEventListener('pointerleave',()=>b.style.translate='')});
-paint();
+$('order').onclick=()=>{
+  post('/api/order',{items:cart.map(i=>({id:i.id,q:i.q}))}).catch(()=>{});
+  const tot=cart.reduce((a,i)=>a+prod(i.id).price*i.q,0);
+  const msg=t('Hi Hook, I want to order:','أهلاً هوك، عايز أطلب:')+'\n'+cart.map(i=>{const p=prod(i.id);return `- ${L(p.name)} × ${i.q} (${p.price*i.q} ${cur()})`}).join('\n')+`\n${t('Total','الإجمالي')}: ${tot} ${cur()}`;
+  open(`https://wa.me/${DB.contact.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
+};
+
+/* ---------- slider (LTR and RTL) ---------- */
+function slider(root,ms){
+  const tr=root.querySelector('.track'),dots=root.querySelector('.dots'),play=root.querySelector('.play');
+  const rtl=()=>document.documentElement.dir=='rtl',pos=()=>Math.abs(tr.scrollLeft);
+  const st=()=>tr.firstElementChild?tr.firstElementChild.offsetWidth+parseFloat(getComputedStyle(tr).columnGap||0):1;
+  const go=d=>{if(d>0&&pos()>=tr.scrollWidth-tr.clientWidth-6)tr.scrollTo({left:0});else if(d<0&&pos()<=6)tr.scrollTo({left:rtl()?-tr.scrollWidth:tr.scrollWidth});else tr.scrollBy({left:d*st()*(rtl()?-1:1)})};
+  let on=!reduce,hov=false,timer;
+  const tick=()=>{clearInterval(timer);if(on)timer=setInterval(()=>{if(!hov)go(1)},ms)};
+  root.querySelector('.prev').onclick=()=>{go(-1);tick()};root.querySelector('.next').onclick=()=>{go(1);tick()};
+  if(play){play.textContent=on?'❚❚':'▶';play.onclick=()=>{on=!on;play.textContent=on?'❚❚':'▶';tick()}}
+  root.onmouseenter=root.onfocusin=()=>hov=true;root.onmouseleave=root.onfocusout=()=>hov=false;
+  const mark=()=>{if(dots){const i=Math.round(pos()/st());[...dots.children].forEach((b,k)=>b.classList.toggle('on',k==i))}};
+  root._refresh=()=>{if(dots){dots.innerHTML=[...tr.children].map((_,i)=>`<button aria-label="${i+1}"></button>`).join('');mark()}};
+  if(dots){dots.onclick=e=>{const i=[...dots.children].indexOf(e.target);if(i>=0){tr.scrollTo({left:(rtl()?-1:1)*i*st()});tick()}};tr.addEventListener('scroll',mark,{passive:true})}
+  root._refresh();tick();
+}
+
+/* ---------- effects ---------- */
+function count(b){const n=+b.textContent;if(!n)return;const t0=performance.now();(function f(x){const p=Math.min((x-t0)/1400,1);b.textContent=Math.round(n*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)})(t0)}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;io.unobserve(el);el.classList.add('in');
+  const b=el.classList.contains('stat')&&el.querySelector('b');if(b)count(b);setTimeout(()=>el.classList.remove('reveal','in'),1400)}),{threshold:.12});
+function watch(){if(reduce)return;document.querySelectorAll('main .card,main .panel,main h2,main .script,main .tabs,main .slider,main .lg,main form,.mq-wrap').forEach(el=>{if(el.dataset.w)return;el.dataset.w=1;el.classList.add('reveal');el.style.setProperty('--d',[...el.parentNode.children].indexOf(el)%5*.09+'s');io.observe(el)})}
+if(!reduce&&matchMedia('(pointer:fine)').matches)document.addEventListener('pointermove',e=>{
+  const c=e.target.closest&&e.target.closest('main .card');
+  document.querySelectorAll('.card[style*="--rx"]').forEach(x=>{if(x!==c){x.style.removeProperty('--rx');x.style.removeProperty('--ry')}});
+  if(c){const r=c.getBoundingClientRect();c.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*7+'deg');c.style.setProperty('--rx',(.5-(e.clientY-r.top)/r.height)*7+'deg')}
+});
+function typeTag(){const px=document.querySelector('.hero .pix');if(!px||reduce)return;const s=px.dataset.full||(px.dataset.full=px.textContent);px.textContent='';px.classList.add('typing');[...s].forEach((c,i)=>setTimeout(()=>px.textContent+=c,500+i*70))}
+
+/* ---------- tracking ---------- */
+window.trackView=id=>{try{const s=JSON.parse(sessionStorage.getItem('hv')||'[]');if(s.includes(id))return;s.push(id);sessionStorage.setItem('hv',JSON.stringify(s))}catch(e){}post('/api/track',{k:'view',id}).catch(()=>{})};
+document.addEventListener('click',e=>{const a=e.target.closest('[data-view]');if(a)trackView(a.dataset.view)});
+
+/* ---------- start ---------- */
+let th='light',lang='en';try{th=localStorage.getItem('hooktheme')||'light';lang=localStorage.getItem('hooklang')||'en'}catch(e){}
+setTheme(th);applyLang(lang);typeTag();watch();
+new MutationObserver(watch).observe(document.querySelector('main'),{childList:true,subtree:true});
+(async()=>{
+  DB=(await jget('/api/content'))||window.SEED;runHooks();
+  if(here!=='dashboard.html'&&here!=='login.html')post('/api/track',{k:'visit',p:location.pathname}).catch(()=>{});
+  const me=await jget('/api/me');ME=me&&me.user;
+  if(ME){$('acct').href=ME.role==='admin'?'dashboard.html':'login.html';$('acct').title=ME.username}
+  document.dispatchEvent(new Event('auth'));
+  if(ME&&ME.role==='admin')loadScript('admin.js');
+  loadScript('three.min.js').then(()=>loadScript('scene.js'));
+})();

@@ -1,0 +1,407 @@
+{
+ "work": [
+  {
+   "id": "w1",
+   "cat": "Design",
+   "name": {
+    "en": "JMG Real Estate",
+    "ar": "JMG Real Estate"
+   },
+   "desc": {
+    "en": "Designs that bring properties to life: social graphics, ads, brochures, site maps and branding that sells the lifestyle before the unit.",
+    "ar": "تصاميم تنبض بالحياة للعقارات: جرافيك سوشيال وإعلانات وبروشورات وخرائط مواقع وهوية تبيع نمط الحياة قبل الوحدة."
+   },
+   "img": "img/jmg-design.jpg"
+  },
+  {
+   "id": "w2",
+   "cat": "Design",
+   "name": {
+    "en": "M.A Express",
+    "ar": "M.A Express"
+   },
+   "desc": {
+    "en": "Designs that deliver confidence: branded packaging, truck graphics, social visuals and ads for a shipping company.",
+    "ar": "تصاميم تبني الثقة: تغليف بهوية وجرافيك للشاحنات ومرئيات سوشيال وإعلانات لشركة شحن."
+   },
+   "img": "img/ma-design.jpg"
+  },
+  {
+   "id": "w3",
+   "cat": "Design",
+   "name": {
+    "en": "Lumière Candles",
+    "ar": "Lumière Candles"
+   },
+   "desc": {
+    "en": "Warm designs for warm moments: packaging, labels and social content for handmade candles.",
+    "ar": "تصاميم دافئة للحظات دافئة: تغليف وملصقات ومحتوى سوشيال لشموع يدوية الصنع."
+   },
+   "img": "img/lumiere-design.jpg"
+  },
+  {
+   "id": "w4",
+   "cat": "Content",
+   "name": {
+    "en": "Global Premier Properties",
+    "ar": "Global Premier Properties"
+   },
+   "desc": {
+    "en": "Real estate content that sells before the site is built, from ad creatives to brand storytelling.",
+    "ar": "محتوى عقاري يبيع قبل ما يتبني الموقع، من الإعلانات الإبداعية لحكاية البراند."
+   },
+   "img": "img/gpp-content.jpg"
+  },
+  {
+   "id": "w5",
+   "cat": "Content",
+   "name": {
+    "en": "BestRate",
+    "ar": "BestRate"
+   },
+   "desc": {
+    "en": "Content for the shipping industry: social posts and ad copy that highlight speed, safety and trust.",
+    "ar": "محتوى لقطاع الشحن: منشورات ونصوص إعلانية تبرز السرعة والأمان والثقة."
+   },
+   "img": "img/bestrate-content.jpg"
+  },
+  {
+   "id": "w6",
+   "cat": "Content",
+   "name": {
+    "en": "Silsal Corporation",
+    "ar": "مؤسسة سلسال"
+   },
+   "desc": {
+    "en": "Persuasive content for postgraduate courses and executive diplomas.",
+    "ar": "محتوى مُقنع لبرامج الدراسات العليا والدبلومات التنفيذية."
+   },
+   "img": "img/silsal-content.jpg"
+  },
+  {
+   "id": "w7",
+   "cat": "Media Buying",
+   "name": {
+    "en": "JMG Real Estate",
+    "ar": "JMG Real Estate"
+   },
+   "desc": {
+    "en": "Meta Ads and Google Display campaigns for qualified buyers. Two projects delivered 253 and 158 conversations.",
+    "ar": "حملات ميتا وجوجل ديسبلاي لمشترين مؤهلين. مشروعان حققا 253 و158 محادثة."
+   },
+   "img": "img/jmg-media.jpg"
+  },
+  {
+   "id": "w8",
+   "cat": "Media Buying",
+   "name": {
+    "en": "The Act of Teaching",
+    "ar": "The Act of Teaching"
+   },
+   "desc": {
+    "en": "Ad campaigns for online courses: 362 conversations at 4.56 EGP per conversation.",
+    "ar": "حملات إعلانية لكورسات أونلاين: 362 محادثة بتكلفة 4.56 ج.م للمحادثة."
+   },
+   "img": "img/education-media.jpg"
+  }
+ ],
+ "clients": [
+  {
+   "id": "c1",
+   "name": "Al-Malak",
+   "logo": "logos/almalak.png"
+  },
+  {
+   "id": "c2",
+   "name": "Holybelly",
+   "logo": "logos/holybelly.png"
+  },
+  {
+   "id": "c3",
+   "name": "2B Studio",
+   "logo": "logos/2b-studio.png"
+  },
+  {
+   "id": "c4",
+   "name": "BestRate",
+   "logo": "logos/bestrate.png"
+  },
+  {
+   "id": "c5",
+   "name": "JMG Real Estate",
+   "logo": "logos/jmg.png"
+  },
+  {
+   "id": "c6",
+   "name": "Silsal Corporation",
+   "logo": "logos/silsal.png"
+  },
+  {
+   "id": "c7",
+   "name": "Charly",
+   "logo": "logos/charly.png"
+  },
+  {
+   "id": "c8",
+   "name": "Bucharest Black",
+   "logo": "logos/bucharest-black.png"
+  },
+  {
+   "id": "c9",
+   "name": "Levai & Loris",
+   "logo": "logos/levai-loris.png"
+  },
+  {
+   "id": "c10",
+   "name": "Gramophone Co-Working Space",
+   "logo": "logos/gramophone.png"
+  },
+  {
+   "id": "c11",
+   "name": "M.A Express",
+   "logo": "logos/ma-express.png"
+  },
+  {
+   "id": "c12",
+   "name": "Global Premier Properties",
+   "logo": "logos/gpp.png"
+  },
+  {
+   "id": "c13",
+   "name": "The Act of Teaching",
+   "logo": "logos/act-of-teaching.png"
+  },
+  {
+   "id": "c14",
+   "name": "Lumière",
+   "logo": "logos/lumiere.png"
+  }
+ ],
+ "products": [
+  {
+   "id": "p1",
+   "name": {
+    "en": "Social Media Starter",
+    "ar": "باقة السوشيال الأساسية"
+   },
+   "price": 3500,
+   "per": {
+    "en": "month",
+    "ar": "شهرياً"
+   },
+   "tag": {
+    "en": "Social media",
+    "ar": "سوشيال ميديا"
+   },
+   "items": [
+    {
+     "en": "12 designed posts",
+     "ar": "12 بوست مصمم"
+    },
+    {
+     "en": "4 stories",
+     "ar": "4 ستوريز"
+    },
+    {
+     "en": "Basic community replies",
+     "ar": "ردود مجتمع أساسية"
+    }
+   ]
+  },
+  {
+   "id": "p2",
+   "name": {
+    "en": "Social Media Growth",
+    "ar": "باقة السوشيال للنمو"
+   },
+   "price": 6500,
+   "per": {
+    "en": "month",
+    "ar": "شهرياً"
+   },
+   "tag": {
+    "en": "Social media",
+    "ar": "سوشيال ميديا"
+   },
+   "items": [
+    {
+     "en": "20 designed posts",
+     "ar": "20 بوست مصمم"
+    },
+    {
+     "en": "8 videos or reels",
+     "ar": "8 فيديوهات أو ريلز"
+    },
+    {
+     "en": "Full community management",
+     "ar": "إدارة مجتمع كاملة"
+    },
+    {
+     "en": "Monthly report",
+     "ar": "تقرير شهري"
+    }
+   ]
+  },
+  {
+   "id": "p3",
+   "name": {
+    "en": "Brand Identity",
+    "ar": "الهوية البصرية"
+   },
+   "price": 8000,
+   "per": {
+    "en": "one time",
+    "ar": "مرة واحدة"
+   },
+   "tag": {
+    "en": "Branding",
+    "ar": "هوية"
+   },
+   "items": [
+    {
+     "en": "Logo and color palette",
+     "ar": "شعار ولوحة ألوان"
+    },
+    {
+     "en": "Typography",
+     "ar": "خطوط الهوية"
+    },
+    {
+     "en": "Social media templates",
+     "ar": "قوالب سوشيال ميديا"
+    }
+   ]
+  },
+  {
+   "id": "p4",
+   "name": {
+    "en": "Ads Management",
+    "ar": "إدارة الإعلانات"
+   },
+   "price": 4000,
+   "per": {
+    "en": "month + ad spend",
+    "ar": "شهرياً + ميزانية الإعلان"
+   },
+   "tag": {
+    "en": "Media buying",
+    "ar": "شراء إعلانات"
+   },
+   "items": [
+    {
+     "en": "Meta Ads campaigns",
+     "ar": "حملات ميتا"
+    },
+    {
+     "en": "Audience targeting",
+     "ar": "استهداف الجمهور"
+    },
+    {
+     "en": "Weekly optimization",
+     "ar": "تحسين أسبوعي"
+    }
+   ]
+  },
+  {
+   "id": "p5",
+   "name": {
+    "en": "Content Pack",
+    "ar": "باقة المحتوى"
+   },
+   "price": 2500,
+   "per": {
+    "en": "one time",
+    "ar": "مرة واحدة"
+   },
+   "tag": {
+    "en": "Content",
+    "ar": "محتوى"
+   },
+   "items": [
+    {
+     "en": "15 written posts",
+     "ar": "15 منشور مكتوب"
+    },
+    {
+     "en": "Ad copy variations",
+     "ar": "نسخ متعددة للنصوص الإعلانية"
+    },
+    {
+     "en": "Brand voice guide",
+     "ar": "دليل نبرة البراند"
+    }
+   ]
+  },
+  {
+   "id": "p6",
+   "name": {
+    "en": "Full Launch Bundle",
+    "ar": "باقة الإطلاق الكاملة"
+   },
+   "price": 15000,
+   "per": {
+    "en": "one time",
+    "ar": "مرة واحدة"
+   },
+   "tag": {
+    "en": "Bundle",
+    "ar": "باقة شاملة"
+   },
+   "items": [
+    {
+     "en": "Brand identity",
+     "ar": "هوية بصرية"
+    },
+    {
+     "en": "1 month of social media",
+     "ar": "شهر سوشيال ميديا"
+    },
+    {
+     "en": "1 month of ads management",
+     "ar": "شهر إدارة إعلانات"
+    }
+   ]
+  }
+ ],
+ "buttons": {
+  "hero1": {
+   "label": {
+    "en": "Start a project",
+    "ar": "ابدأ مشروعك"
+   },
+   "href": "contact.html"
+  },
+  "hero2": {
+   "label": {
+    "en": "See our work",
+    "ar": "شوف أعمالنا"
+   },
+   "href": "portfolio.html"
+  },
+  "workAll": {
+   "label": {
+    "en": "View all work",
+    "ar": "شوف كل الأعمال"
+   },
+   "href": "portfolio.html"
+  },
+  "cta": {
+   "label": {
+    "en": "Contact us",
+    "ar": "تواصل معنا"
+   },
+   "href": "contact.html"
+  },
+  "servicesShop": {
+   "label": {
+    "en": "Browse packages in the shop",
+    "ar": "تصفح الباقات في المتجر"
+   },
+   "href": "shop.html"
+  }
+ },
+ "contact": {
+  "email": "mm.Mido1270@gmail.com",
+  "whatsapp": "201120767519"
+ }
+}
